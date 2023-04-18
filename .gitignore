@@ -1,0 +1,9 @@
+.envrc
+.idea/
+.DS_Store
+/localdata*
+data/
+testdata/
+.cache/
+*.jsonl
+*.spkg

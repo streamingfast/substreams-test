@@ -1,0 +1,22 @@
+query($block: Int!,$token: String!)  {
+    tokens(where: {id: $token}, block: {number: $block}) {
+        id
+        symbol
+        name
+        decimals
+        totalSupply
+        volume
+        volumeUSD
+        untrackedVolumeUSD
+        feesUSD
+        txCount
+        poolCount
+        totalValueLocked
+        totalValueLockedUSD
+        totalValueLockedUSDUntracked
+        derivedETH
+        whitelistPools {
+            id
+        }
+    }
+}

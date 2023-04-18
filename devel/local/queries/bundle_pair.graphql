@@ -1,0 +1,35 @@
+query($block: Int!)  {
+    bundle(id: 1,block: {number: $block}) {
+        id
+        ethPriceUSD
+    }
+    pools(block: {number: $block}) {
+        id
+        createdAtTimestamp
+        createdAtBlockNumber
+        feeTier
+        liquidity
+        sqrtPrice
+        feeGrowthGlobal0X128
+        feeGrowthGlobal1X128
+        token0Price
+        token1Price
+        tick
+        observationIndex
+        volumeToken0
+        volumeToken1
+        volumeUSD
+        untrackedVolumeUSD
+        feesUSD
+        txCount
+        collectedFeesToken0
+        collectedFeesToken1
+        collectedFeesUSD
+        totalValueLockedToken0
+        totalValueLockedToken1
+        totalValueLockedETH
+        totalValueLockedUSD
+        totalValueLockedUSDUntracked
+        liquidityProviderCount
+    }
+}
