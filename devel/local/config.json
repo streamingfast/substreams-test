@@ -21,6 +21,11 @@
   },
   "Pool": {
     "fields": {
+      "id": {
+        "opt": {
+          "sanitize_hex": true
+        }
+      },
       "untrackedVolumeUSD": {
         "rename": "volumeUSDUntracked"
       },

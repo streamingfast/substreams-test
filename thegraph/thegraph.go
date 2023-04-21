@@ -22,6 +22,7 @@ type Client struct {
 	cacheHitCount  uint64
 	cacheMissCount uint64
 	zlogger        *zap.Logger
+	count          int
 }
 
 type Option func(*Client) *Client
@@ -49,6 +50,7 @@ func New(graphURL string, opts ...Option) *Client {
 		url:     graphURL,
 		cache:   &noOpCache{},
 		zlogger: zap.NewNop(),
+		count:   0,
 	}
 
 	for _, opt := range opts {
@@ -58,6 +60,7 @@ func New(graphURL string, opts ...Option) *Client {
 }
 
 func (g *Client) Fetch(ctx context.Context, query string, vars map[string]interface{}) ([]byte, error) {
+
 	chunk := []string{
 		g.url,
 	}

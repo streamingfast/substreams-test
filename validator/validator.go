@@ -128,7 +128,7 @@ func (v *Validator) handleEntityChange(ctx context.Context, blockNum uint64, cha
 			fmt.Printf("✅ %s\n", prefix)
 		} else {
 			v.stats.failedCount++
-			fmt.Printf("❌ %s: sub: %s <-> grt: %s\n", prefix, field.obj.string(), subgraphValue)
+			fmt.Printf("❌ %s: sub: %s <-> grql: %s\n", prefix, field.obj.string(), subgraphValue)
 		}
 	}
 	return nil
