@@ -12,7 +12,7 @@ main() {
     version=`cat .version`
   fi
 
-  binary_name="substreams-test"
+  binary_name="substreams-graph-test"
   binary_package="./cmd/${binary_name}"
 
   pushd "$ROOT" &> /dev/null

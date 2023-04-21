@@ -1,36 +1,55 @@
-# Substreams Test
+# Substreams Subgraph Test
 
-Tool that helps you build a Substreams test file based on a deployed Subgraph
+This tools allows you to compare the values from a Substreams graph_out module with a Subgraph.
 
 ## Installing
 
 ```bash
-go install ./cmd/substreams-test
+go install ./cmd/substreams-graph-test
 ```
 
 ## Running
 
 ```bash
 substreams-test generate <path-to-config-file.json> <start-block-num> <block_count>
+substreams-graph-test test substream <substream-manifes-path> <subgraph-api-rul> <config_file> [<start:stop>]
+
 ```
 
 ## Configuration file 
 
+The configuration files allows you to ignore Entity or Fields during testing and allows you to specify tolerances when comparing values.
+
 ```json
 {
-  "graph_url": "https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v3",
-  "test_output_path": "./test.jsonl",
-  "substreams_module": "graph_out",
-
-  "tests":{
-   "./queries/pool.graphql": {
-     "paths": [
-       {"graph":  "data.pool.feeGrowthGlobal1X128", "substreams": ".feeGrowthGlobalUpdates[] | select(.poolAddress == \"${pool}\") | .newValue.value" }
-     ],
-     "vars": [
-       { "pool": "0x6c6bc977e13df9b0de53b251522280bb72383700" }
-     ]
-   }
+  "Factory": {
+    "ignore": true
+  },
+  "PositionSnapshot": {
+    "ignore": true
+  },
+  "Position": {
+    "ignore": true
+  },
+  "Token": {
+    "fields": {
+      "untrackedVolumeUSD": {
+        "rename": "volumeUSDUntracked"
+      }
+    }
+  },
+  "TokenDayData": {
+    "fields": {
+      "tokenPrice": {
+        "ignore": true
+      }
+    }
+  },
+  "TokenHourData": {
+    "fields": {
+      "tokenPrice": {
+        "ignore": true
+      }
+    }
   }
-}
-```
+}```

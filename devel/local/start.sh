@@ -2,7 +2,7 @@
 
 ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-stest="$ROOT/../substreams-test"
+stest="$ROOT/../stest"
 
 finish() {
     kill -s TERM $active_pid &> /dev/null || true
@@ -15,9 +15,11 @@ main() {
     set -e
 
     export INFO=".*"
-    $stest generate "config.json"\
-      16371050 \
-      5 \
+    $stest test substream \
+      ../../../substreams-uniswap-v3/substreams.yaml \
+      https://api.thegraph.com/subgraphs/name/ianlapham/v3-minimal \
+      ./config.json \
+      12369621:12469621\
       "$@"
 
   popd &> /dev/null

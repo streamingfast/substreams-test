@@ -1,16 +1,71 @@
 {
-  "graph_url": "https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v3",
-  "test_output_path": "./test.jsonl",
-  "substreams_module": "graph_out",
-
-  "tests":{
-   "./queries/pool.graphql": {
-     "paths": [
-       {"graph":  "data.pool.feeGrowthGlobal1X128", "substreams": ".feeGrowthGlobalUpdates[] | select(.poolAddress == \"${pool}\") | .newValue.value" }
-     ],
-     "vars": [
-       { "pool": "0x6c6bc977e13df9b0de53b251522280bb72383700" }
-     ]
-   }
+  "Factory": {
+    "ignore": true,
+    "fields": {
+      "totalFeesETH": {
+        "rename": "feesETH"
+      },
+      "totalFeesUSD": {
+        "rename": "feesUSD"
+      },
+      "untrackedVolumeUSD": {
+        "rename": "volumeUSDUntracked"
+      },
+      "totalVolumeETH": {
+        "ignore": true
+      },
+      "totalVolumeUSD": {
+        "ignore": true
+      }
+    }
+  },
+  "Pool": {
+    "fields": {
+      "untrackedVolumeUSD": {
+        "rename": "volumeUSDUntracked"
+      },
+      "token1": {
+        "association": true,
+        "opt": {
+          "sanitize_hex": true
+        }
+      },
+      "token0": {
+        "association": true,
+        "opt": {
+          "sanitize_hex": true
+        }
+      }
+    }
+  },
+  "PositionSnapshot": {
+    "ignore": true
+  },
+  "Position": {
+    "ignore": true
+  },
+  "Token": {
+    "fields": {
+      "untrackedVolumeUSD": {
+        "rename": "volumeUSDUntracked"
+      },
+      "totalValueLockedUSDUntracked": {
+        "rename": "volumeUSDUntracked"
+      }
+    }
+  },
+  "TokenDayData": {
+    "fields": {
+      "tokenPrice": {
+        "ignore": true
+      }
+    }
+  },
+  "TokenHourData": {
+    "fields": {
+      "tokenPrice": {
+        "ignore": true
+      }
+    }
   }
 }

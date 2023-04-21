@@ -5,33 +5,50 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"go.uber.org/zap"
 	"io"
 	"net"
 	"net/http"
 	"time"
+
+	"github.com/streamingfast/dstore"
+	"go.uber.org/zap"
 )
 
-type Graph struct {
+type Client struct {
 	*http.Client
-	url    string
-	logger *zap.Logger
+	url   string
+	cache QueryCache
+
+	cacheHitCount  uint64
+	cacheMissCount uint64
+	zlogger        *zap.Logger
 }
 
-type Option func(*Graph) *Graph
+type Option func(*Client) *Client
 
-func WithLogger(logger *zap.Logger) Option {
-	return func(g *Graph) *Graph {
-		g.logger = logger
+func WithCache(cacheStore dstore.Store) Option {
+	return func(g *Client) *Client {
+		g.cache = &FileCache{
+			store:   cacheStore,
+			content: map[string][]byte{},
+		}
 		return g
 	}
 }
 
-func New(graphURL string, opts ...Option) *Graph {
-	g := &Graph{
-		Client: newClient(),
-		url:    graphURL,
-		logger: zap.NewNop(),
+func WithLogger(zlogger *zap.Logger) Option {
+	return func(g *Client) *Client {
+		g.zlogger = zlogger
+		return g
+	}
+}
+
+func New(graphURL string, opts ...Option) *Client {
+	g := &Client{
+		Client:  newClient(),
+		url:     graphURL,
+		cache:   &noOpCache{},
+		zlogger: zap.NewNop(),
 	}
 
 	for _, opt := range opts {
@@ -40,13 +57,47 @@ func New(graphURL string, opts ...Option) *Graph {
 	return g
 }
 
-func (g *Graph) Fetch(ctx context.Context, query *Query) ([]byte, error) {
-	g.logger.Debug("hitting thegraph api",
+func (g *Client) Fetch(ctx context.Context, query string, vars map[string]interface{}) ([]byte, error) {
+	chunk := []string{
+		g.url,
+	}
+	for k, v := range vars {
+		chunk = append(chunk, fmt.Sprintf("%s=%s", k, v))
+	}
+	cacheKey := g.cache.Key(chunk)
+
+	cnt, err := g.cache.Get(ctx, cacheKey)
+	if err == nil {
+		g.zlogger.Debug("cache hit", zap.String("cache_key", cacheKey))
+		g.cacheHitCount++
+		return cnt, nil
+	}
+
+	g.zlogger.Debug("cache misses", zap.String("cache_key", cacheKey), zap.String("error", err.Error()))
+
+	params := map[string]interface{}{
+		"query":     query,
+		"variables": vars,
+	}
+	g.cacheMissCount++
+	g.zlogger.Debug("http fetching", zap.Reflect("params", params))
+	cnt, err = g.fetch(ctx, params)
+	if err != nil {
+		return nil, fmt.Errorf("unable to fetch entities: %w", err)
+	}
+	if err := g.cache.Put(ctx, cacheKey, cnt); err != nil {
+		g.zlogger.Warn("cache put failed", zap.Error(err))
+	}
+	return cnt, nil
+}
+
+func (g *Client) fetch(ctx context.Context, payload map[string]interface{}) ([]byte, error) {
+	g.zlogger.Debug("hitting thegraph api",
 		zap.String("url", g.url),
-		zap.String("query", query.Query),
+		zap.String("query", payload["query"].(string)),
 	)
 
-	cnt, err := json.Marshal(query)
+	cnt, err := json.Marshal(payload)
 	if err != nil {
 		return nil, fmt.Errorf("unale to marshall payload: %w", err)
 	}
@@ -70,7 +121,7 @@ func (g *Graph) Fetch(ctx context.Context, query *Query) ([]byte, error) {
 		return nil, fmt.Errorf("querying graphql: got status %d, body %s", resp.StatusCode, string(responseBytes))
 	}
 
-	g.logger.Debug("response",
+	g.zlogger.Debug("response",
 		zap.String("response", string(responseBytes)),
 	)
 
@@ -110,4 +161,16 @@ func newClient() *http.Client {
 			ExpectContinueTimeout: 1 * time.Second,
 		},
 	}
+}
+
+func (g *Client) GetCacheHitCount() uint64 {
+	return g.cacheHitCount
+}
+
+func (g *Client) GetCacheMissCount() uint64 {
+	return g.cacheMissCount
+}
+
+func (g *Client) GetTotalQueries() uint64 {
+	return g.cacheHitCount + g.cacheMissCount
 }
