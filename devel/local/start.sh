@@ -14,11 +14,13 @@ main() {
 
     set -e
 
+
     export INFO=".*"
+    jsonnet minimal.jsonnet > run_config.json
     $stest test substream \
       ../../../substreams-uniswap-v3/substreams.yaml \
       https://api.thegraph.com/subgraphs/name/ianlapham/v3-minimal \
-      ./config.json \
+      ./run_config.json \
       12369621:12469621\
       "$@"
 

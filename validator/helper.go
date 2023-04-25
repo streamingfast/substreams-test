@@ -36,6 +36,15 @@ func (v *Validator) isGraphQLAssociatedField(entityName string, fieldName string
 	return false
 }
 
+func (v *Validator) isGraphQLArrayField(entityName string, fieldName string) bool {
+	if entity, found := v.config[entityName]; found {
+		if field, ok := entity.Fields[fieldName]; ok {
+			return field.Array
+		}
+	}
+	return false
+}
+
 func (v *Validator) getFieldOpt(entityName string, fieldName string) map[string]interface{} {
 	if entity, found := v.config[entityName]; found {
 		if field, ok := entity.Fields[fieldName]; ok {

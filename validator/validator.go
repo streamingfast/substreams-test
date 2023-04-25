@@ -104,7 +104,7 @@ func (v *Validator) handleEntityChange(ctx context.Context, blockNum uint64, cha
 		zap.Reflect("vars", vars),
 	)
 
-	resp, err := v.graphClient.Fetch(ctx, query, vars)
+	resp, err := v.graphClient.Fetch(ctx, blockNum, query, vars)
 	if err != nil {
 		return fmt.Errorf("failed to query thegraph %s: %w", query, err)
 	}
@@ -118,12 +118,13 @@ func (v *Validator) handleEntityChange(ctx context.Context, blockNum uint64, cha
 		prefix := fmt.Sprintf("[%d] %s.%s.%s", blockNum, subgraphEntity, change.Id, field.substreamsField)
 
 		subgraphValue := gjson.GetBytes(resp, field.graphqlJSONPath).String()
-
-		cmp, err := field.obj.eql(subgraphValue)
+		actualValue, err := field.objFactory(subgraphValue)
 		if err != nil {
-			return fmt.Errorf("failed to compare field %s: %w", field.substreamsField, err)
+			return fmt.Errorf("failed to parse %s: %w", subgraphValue, err)
+
 		}
-		if cmp {
+
+		if field.obj.eql(actualValue) {
 			v.stats.successCount++
 			fmt.Printf("✅ %s\n", prefix)
 		} else {

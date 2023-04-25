@@ -59,7 +59,7 @@ func New(graphURL string, opts ...Option) *Client {
 	return g
 }
 
-func (g *Client) Fetch(ctx context.Context, query string, vars map[string]interface{}) ([]byte, error) {
+func (g *Client) Fetch(ctx context.Context, blockNum uint64, query string, vars map[string]interface{}) ([]byte, error) {
 
 	chunk := []string{
 		g.url,
@@ -69,7 +69,7 @@ func (g *Client) Fetch(ctx context.Context, query string, vars map[string]interf
 	}
 	cacheKey := g.cache.Key(chunk)
 
-	cnt, err := g.cache.Get(ctx, cacheKey)
+	cnt, err := g.cache.Get(ctx, blockNum, cacheKey)
 	if err == nil {
 		g.zlogger.Debug("cache hit", zap.String("cache_key", cacheKey))
 		g.cacheHitCount++
@@ -88,7 +88,7 @@ func (g *Client) Fetch(ctx context.Context, query string, vars map[string]interf
 	if err != nil {
 		return nil, fmt.Errorf("unable to fetch entities: %w", err)
 	}
-	if err := g.cache.Put(ctx, cacheKey, cnt); err != nil {
+	if err := g.cache.Put(ctx, blockNum, cacheKey, cnt); err != nil {
 		g.zlogger.Warn("cache put failed", zap.Error(err))
 	}
 	return cnt, nil

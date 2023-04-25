@@ -19,6 +19,7 @@ type EntityConfig struct {
 
 type FieldConfig struct {
 	Association bool                   `json:"association,omitempty"`
+	Array       bool                   `json:"array,omitempty"`
 	Ignore      bool                   `json:"ignore,omitempty"`
 	Rename      string                 `json:"rename,omitempty"`
 	Error       uint                   `json:"error,omitempty"`

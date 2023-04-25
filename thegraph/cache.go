@@ -6,19 +6,20 @@ import (
 	"crypto/md5"
 	"errors"
 	"fmt"
-	"github.com/streamingfast/dstore"
-	"go.uber.org/zap/zapcore"
-	"io/ioutil"
+	"io"
 	"strings"
 	"sync"
+
+	"github.com/streamingfast/dstore"
+	"go.uber.org/zap/zapcore"
 )
 
 var NotFound = errors.New("not found")
 
 type QueryCache interface {
 	Key([]string) string
-	Get(ctx context.Context, key string) ([]byte, error)
-	Put(ctx context.Context, key string, cnt []byte) error
+	Get(ctx context.Context, block uint64, key string) ([]byte, error)
+	Put(ctx context.Context, block uint64, key string, cnt []byte) error
 
 	MarshalLogObject(encoder zapcore.ObjectEncoder) error
 }
@@ -32,12 +33,12 @@ func (n *noOpCache) Key([]string) string {
 	return ""
 }
 
-func (n *noOpCache) Get(ctx context.Context, key string) ([]byte, error) {
+func (n *noOpCache) Get(ctx context.Context, block uint64, key string) ([]byte, error) {
 	n.missCount++
 	return nil, NotFound
 }
 
-func (n *noOpCache) Put(ctx context.Context, key string, cnt []byte) error {
+func (n *noOpCache) Put(ctx context.Context, block uint64, key string, cnt []byte) error {
 	return nil
 }
 
@@ -56,7 +57,7 @@ type FileCache struct {
 	content     map[string][]byte
 }
 
-func (f *FileCache) Get(ctx context.Context, cacheKey string) ([]byte, error) {
+func (f *FileCache) Get(ctx context.Context, block uint64, cacheKey string) ([]byte, error) {
 	f.getCount++
 
 	f.contentLock.RLock()
@@ -66,7 +67,8 @@ func (f *FileCache) Get(ctx context.Context, cacheKey string) ([]byte, error) {
 		return c, nil
 	}
 
-	found, err := f.store.FileExists(ctx, cacheKey)
+	fname := filename(block, cacheKey)
+	found, err := f.store.FileExists(ctx, fname)
 	if err != nil {
 		return nil, fmt.Errorf("failed to check file %q: %w", cacheKey, err)
 	}
@@ -74,13 +76,13 @@ func (f *FileCache) Get(ctx context.Context, cacheKey string) ([]byte, error) {
 		f.missCount++
 		return nil, NotFound
 	}
-	r, err := f.store.OpenObject(ctx, cacheKey)
+	r, err := f.store.OpenObject(ctx, fname)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open file %q: %w", cacheKey, err)
 	}
 	defer r.Close()
 
-	cnt, err := ioutil.ReadAll(r)
+	cnt, err := io.ReadAll(r)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read cache file %q: %w", cacheKey, err)
 	}
@@ -102,13 +104,13 @@ func (f *FileCache) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
 	return nil
 }
 
-func (f *FileCache) Put(ctx context.Context, cacheKey string, cnt []byte) error {
+func (f *FileCache) Put(ctx context.Context, block uint64, cacheKey string, cnt []byte) error {
 	f.contentLock.Lock()
 	f.content[cacheKey] = cnt
 	f.contentLock.Unlock()
 
 	r := bytes.NewReader(cnt)
-	if err := f.store.WriteObject(ctx, cacheKey, r); err != nil {
+	if err := f.store.WriteObject(ctx, filename(block, cacheKey), r); err != nil {
 		return fmt.Errorf("failed to save cache file %q: %w", cacheKey, err)
 	}
 
@@ -118,4 +120,8 @@ func (f *FileCache) Put(ctx context.Context, cacheKey string, cnt []byte) error 
 func (f *FileCache) Key(v []string) string {
 	data := []byte(strings.Join(v, ""))
 	return fmt.Sprintf("%x", md5.Sum(data))
+}
+
+func filename(block uint64, cacheKey string) string {
+	return fmt.Sprintf("%010d/%s.json", block, cacheKey)
 }

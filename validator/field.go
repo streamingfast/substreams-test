@@ -21,15 +21,17 @@ type Field struct {
 	graphqlField     string
 	graphqlJSONPath  string
 
-	obj Comparable
+	objFactory ComparableFactory
+	obj        Comparable
 }
+
+type ComparableFactory func(string) (Comparable, error)
 type Comparable interface {
-	eql(v string) (bool, error)
+	eql(v Comparable) bool
 	string() string
 }
 
 func (v *Validator) newField(substreamsEntity string, field *pbentities.Field) *Field {
-
 	graphqlFieldName := v.getGraphQLFieldName(substreamsEntity, field.Name)
 	out := &Field{
 		substreamsField: field.Name,
@@ -39,34 +41,38 @@ func (v *Validator) newField(substreamsEntity string, field *pbentities.Field) *
 
 	if v.isGraphQLAssociatedField(substreamsEntity, field.Name) {
 		out.graphqlField = fmt.Sprintf("%s { id }", graphqlFieldName)
-		out.graphqlJSONPath = fmt.Sprintf("data.%s.%s.id", normalizeEntityName(substreamsEntity), graphqlFieldName)
+		if v.isGraphQLArrayField(substreamsEntity, field.Name) {
+			out.graphqlJSONPath = fmt.Sprintf("data.%s.%s.#.id", normalizeEntityName(substreamsEntity), graphqlFieldName)
+		} else {
+			out.graphqlJSONPath = fmt.Sprintf("data.%s.%s.id", normalizeEntityName(substreamsEntity), graphqlFieldName)
+		}
 	}
 
 	fieldOpt := v.getFieldOpt(substreamsEntity, field.Name)
 
-	out.obj = parseValue(field.NewValue, fieldOpt)
+	out.obj, out.objFactory = parseValue(field.NewValue, fieldOpt)
 
 	return out
 }
 
-func parseValue(value *pbentities.Value, fieldOpt map[string]interface{}) Comparable {
+func parseValue(value *pbentities.Value, fieldOpt map[string]interface{}) (Comparable, ComparableFactory) {
 	switch newValue := value.Typed.(type) {
 	case *pbentities.Value_Int32:
-		return newFInt32(newValue.Int32, fieldOpt)
+		return newFInt32(newValue.Int32, fieldOpt), newFInt32FromStr
 
 	case *pbentities.Value_Bigdecimal:
 		nvalue, _ := new(big.Float).SetString(newValue.Bigdecimal)
-		return newFBigDecimal(nvalue, fieldOpt)
+		return newFBigDecimal(nvalue, fieldOpt), newFBigDecimalFromStr
 
 	case *pbentities.Value_Bigint:
 		nvalue, _ := new(big.Int).SetString(newValue.Bigint, 10)
-		return newFBigint(nvalue, fieldOpt)
+		return newFBigint(nvalue, fieldOpt), newFBigintFromStr
 
 	case *pbentities.Value_String_:
-		return newFString(newValue.String_, fieldOpt)
+		return newFString(newValue.String_, fieldOpt), newFStringFromStr
 
 	case *pbentities.Value_Bool:
-		return newFBool(newValue.Bool, fieldOpt)
+		return newFBool(newValue.Bool, fieldOpt), newFBoolFromStr
 
 	case *pbentities.Value_Bytes:
 		data, err := b64.StdEncoding.DecodeString(newValue.Bytes)
@@ -74,13 +80,16 @@ func parseValue(value *pbentities.Value, fieldOpt map[string]interface{}) Compar
 			panic(err)
 		}
 
-		return newFBytes(data, fieldOpt)
+		return newFBytes(data, fieldOpt), newFBytesFromStr
 	case *pbentities.Value_Array:
-		var out []Comparable
+		arr := &FArray{}
+		arrFactory := &FArrayFactory{}
 		for _, v := range newValue.Array.Value {
-			out = append(out, parseValue(v, fieldOpt))
+			val, factory := parseValue(v, fieldOpt)
+			arr.values = append(arr.values, val)
+			arrFactory.factories = append(arrFactory.factories, factory)
 		}
-		return newFArray(out)
+		return arr, arrFactory.newFArrayFromStr
 	default:
 		panic(fmt.Errorf("unknown field v value type %T", newValue))
 	}
@@ -89,21 +98,42 @@ func parseValue(value *pbentities.Value, fieldOpt map[string]interface{}) Compar
 
 type FInt32 struct {
 	v int32
+
+	error     *float64
+	tolerance *float64
 }
 
 func newFInt32(v int32, opt map[string]interface{}) *FInt32 {
-	return &FInt32{v: v}
+	f := &FInt32{v: v}
+	f.error, f.tolerance = extractErrorAndTolerance(opt)
+	return f
+
 }
 
-func (f *FInt32) eql(v string) (bool, error) {
+func newFInt32FromStr(v string) (Comparable, error) {
 	value, err := strconv.ParseInt(v, 10, 32)
 	if err != nil {
-		return false, fmt.Errorf("failed to convert %q to int32: %w", v, err)
+		return nil, fmt.Errorf("failed to convert %q to int32: %w", v, err)
 	}
-	if f.v == int32(value) {
-		return true, nil
+	return &FInt32{v: int32(value)}, nil
+}
+
+func (f *FInt32) eql(v Comparable) bool {
+	expected := new(big.Float).SetInt64(int64(f.v))
+	actual := new(big.Float).SetInt64(int64(v.(*FInt32).v))
+
+	if f.tolerance != nil {
+		ok, _ := validTolerance(expected, actual, *f.tolerance)
+		return ok
 	}
-	return false, nil
+
+	if f.error != nil {
+		ok, _ := validateErrorPercent(expected, actual, *f.error)
+		return ok
+	}
+
+	return expected.Cmp(actual) == 0
+
 }
 
 func (f *FInt32) string() string {
@@ -112,18 +142,42 @@ func (f *FInt32) string() string {
 
 type FBigdecimal struct {
 	v *big.Float
+
+	error     *float64
+	tolerance *float64
 }
 
 func newFBigDecimal(v *big.Float, opt map[string]interface{}) *FBigdecimal {
-	return &FBigdecimal{v: v}
+	f := &FBigdecimal{v: v}
+
+	f.error, f.tolerance = extractErrorAndTolerance(opt)
+
+	return f
 }
 
-func (f *FBigdecimal) eql(v string) (bool, error) {
+func newFBigDecimalFromStr(v string) (Comparable, error) {
 	value, ok := new(big.Float).SetString(v)
 	if !ok {
-		return false, fmt.Errorf("failed to convert %q to bigfloat", v)
+		return nil, fmt.Errorf("failed to convert %q to bigfloat", v)
 	}
-	return f.v.Cmp(value) == 0, nil
+	return &FBigdecimal{v: value}, nil
+}
+
+func (f *FBigdecimal) eql(v Comparable) bool {
+	expected := f.v
+	actual := v.(*FBigdecimal).v
+
+	if f.tolerance != nil {
+		ok, _ := validTolerance(expected, actual, *f.tolerance)
+		return ok
+	}
+
+	if f.error != nil {
+		ok, _ := validateErrorPercent(expected, actual, *f.error)
+		return ok
+	}
+
+	return expected.Cmp(actual) == 0
 }
 
 func (f *FBigdecimal) string() string {
@@ -131,19 +185,42 @@ func (f *FBigdecimal) string() string {
 }
 
 type FBigint struct {
-	v *big.Int
+	v         *big.Int
+	error     *float64
+	tolerance *float64
 }
 
 func newFBigint(v *big.Int, opt map[string]interface{}) *FBigint {
-	return &FBigint{v: v}
+	f := &FBigint{v: v}
+
+	f.error, f.tolerance = extractErrorAndTolerance(opt)
+
+	return f
 }
 
-func (f *FBigint) eql(v string) (bool, error) {
+func newFBigintFromStr(v string) (Comparable, error) {
 	value, ok := new(big.Int).SetString(v, 10)
 	if !ok {
-		return false, fmt.Errorf("failed to convert %q to bigint", v)
+		return nil, fmt.Errorf("failed to convert %q to bigint", v)
 	}
-	return f.v.Cmp(value) == 0, nil
+	return &FBigint{v: value}, nil
+}
+
+func (f *FBigint) eql(v Comparable) bool {
+	expected := new(big.Float).SetInt(f.v)
+	actual := new(big.Float).SetInt(v.(*FBigint).v)
+
+	if f.tolerance != nil {
+		ok, _ := validTolerance(expected, actual, *f.tolerance)
+		return ok
+	}
+
+	if f.error != nil {
+		ok, _ := validateErrorPercent(expected, actual, *f.error)
+		return ok
+	}
+
+	return expected.Cmp(actual) == 0
 }
 
 func (f *FBigint) string() string {
@@ -160,18 +237,19 @@ func newFString(v string, opt map[string]interface{}) *FString {
 		v: v,
 
 		process: func(v string) string {
-			if sanitizeHex, found := opt["sanitize_hex"]; found {
-				if sanitizeHex.(bool) {
-					v = eth.SanitizeHex(v)
-				}
-			}
 			return v
 		},
 	}
 }
 
-func (f *FString) eql(v string) (bool, error) {
-	return f.v == f.process(v), nil
+func newFStringFromStr(v string) (Comparable, error) {
+	return &FString{
+		v: v,
+	}, nil
+}
+
+func (f *FString) eql(v Comparable) bool {
+	return f.v == f.process(v.(*FString).v)
 }
 
 func (f *FString) string() string {
@@ -186,9 +264,14 @@ func newFBool(v bool, opt map[string]interface{}) *FBool {
 	return &FBool{v: v}
 }
 
-func (f *FBool) eql(v string) (bool, error) {
-	value := v == "true"
-	return value == f.v, nil
+func newFBoolFromStr(v string) (Comparable, error) {
+	return &FBool{
+		v: v == "true",
+	}, nil
+}
+
+func (f *FBool) eql(v Comparable) bool {
+	return v.(*FBool).v == f.v
 }
 
 func (f *FBool) string() string {
@@ -206,15 +289,19 @@ func newFBytes(v []byte, opt map[string]interface{}) *FBytes {
 	return &FBytes{v: v}
 }
 
-func (f *FBytes) eql(v string) (bool, error) {
+func newFBytesFromStr(v string) (Comparable, error) {
 	var data []byte
 	var err error
 	if strings.HasPrefix(v, "0x") {
 		if data, err = hex.DecodeString(eth.SanitizeHex(v)); err != nil {
-			return false, fmt.Errorf("failed to convert %s to byte array: %w", v, err)
+			return nil, fmt.Errorf("failed to convert %s to byte array: %w", v, err)
 		}
 	}
-	return bytes.Compare(f.v, data) == 0, nil
+	return &FBytes{v: data}, nil
+}
+
+func (f *FBytes) eql(v Comparable) bool {
+	return bytes.Compare(f.v, v.(*FBytes).v) == 0
 }
 
 func (f *FBytes) string() string {
@@ -222,42 +309,97 @@ func (f *FBytes) string() string {
 }
 
 type FArray struct {
-	v []Comparable
+	values []Comparable
 }
 
-func newFArray(v []Comparable) *FArray {
-	return &FArray{v: v}
+type FArrayFactory struct {
+	factories []ComparableFactory
 }
 
-func (f *FArray) eql(v string) (bool, error) {
-	in := newFArrayFromStr(v)
-	if len(in) != len(f.v) {
-		return false, nil
+func (f *FArrayFactory) newFArrayFromStr(v string) (Comparable, error) {
+	if v == "[]" {
+		return &FArray{}, nil
 	}
-	for i := 0; i < len(in); i++ {
-		ok, err := f.v[i].eql(in[i].string())
+	v = strings.TrimPrefix(strings.TrimSuffix(v, "]"), "[")
+	chunks := strings.Split(v, ",")
+	if len(chunks) != len(f.factories) {
+		return nil, fmt.Errorf("unable to parse array %s length does not match expected array", v)
+	}
+	out := &FArray{}
+	for i := 0; i < len(f.factories); i++ {
+		cleanValue := strings.TrimLeft(strings.TrimRight(chunks[i], "\""), "\"")
+		value, err := f.factories[i](cleanValue)
 		if err != nil {
-			return false, fmt.Errorf("failed to compare elem %d: %w", err, i)
+			return nil, fmt.Errorf("failed to parse %s: %w", cleanValue, err)
 		}
-		if !ok {
-			return false, nil
-		}
+		out.values = append(out.values, value)
 	}
-	return true, nil
+	return out, nil
 }
 
-func newFArrayFromStr(v string) (out []Comparable) {
-	if v == "" {
-		return []Comparable{}
+func (f *FArray) eql(v Comparable) bool {
+	in := v.(*FArray)
+
+	if len(in.values) != len(f.values) {
+		return false
 	}
-	fmt.Println(">", v)
-	panic(fmt.Errorf("need to implement this"))
+	for i := 0; i < len(in.values); i++ {
+		if !f.values[i].eql(in.values[i]) {
+			return false
+		}
+	}
+	return true
 }
 
 func (f *FArray) string() string {
 	strs := []string{}
-	for _, field := range f.v {
+	for _, field := range f.values {
 		strs = append(strs, field.string())
 	}
 	return strings.Join(strs, ", ")
+}
+
+func extractErrorAndTolerance(opts map[string]interface{}) (*float64, *float64) {
+
+	errpercInt, errpercIntOk := opts["error"]
+	toleranceInt, toleranceIntOk := opts["tolerance"]
+
+	if errpercIntOk && toleranceIntOk {
+		panic("error and tolerance are mutually exclusive when comparing numerical values")
+	}
+
+	if errpercIntOk {
+		v := errpercInt.(float64)
+		return &v, nil
+	}
+
+	if toleranceIntOk {
+		v := toleranceInt.(float64)
+		return nil, &v
+	}
+	return nil, nil
+}
+
+// (substreams - subgraph)/substream * 100.0
+func validateErrorPercent(expected, actual *big.Float, errorPercent float64) (bool, float64) {
+	numerator := new(big.Float).Add(expected, new(big.Float).Mul(actual, new(big.Float).SetInt64(-1)))
+	quotient := new(big.Float).Quo(new(big.Float).Abs(numerator), expected)
+	percent := new(big.Float).Mul(quotient, new(big.Float).SetUint64(100))
+	v, _ := percent.Float64()
+
+	if percent.Cmp(new(big.Float).SetFloat64(errorPercent)) > 0 {
+		return false, v
+	}
+	return true, v
+}
+
+func validTolerance(expected, actual *big.Float, tolerance float64) (bool, float64) {
+	tol := new(big.Float).SetFloat64(tolerance)
+	dt := new(big.Float).Add(expected, new(big.Float).Mul(actual, new(big.Float).SetInt64(-1)))
+	v, _ := dt.Float64()
+	if (dt.Cmp(tol) > 0) || dt.Cmp(new(big.Float).Mul(tol, new(big.Float).SetInt64(-1))) < 0 {
+		return false, v
+	}
+	return true, v
+
 }
