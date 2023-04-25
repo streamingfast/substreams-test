@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/streamingfast/substreams-test/validator/fields"
+
 	"github.com/tidwall/gjson"
 
 	sink "github.com/streamingfast/substreams-sink"
@@ -83,7 +85,7 @@ func (v *Validator) handleEntityChange(ctx context.Context, blockNum uint64, cha
 		return nil
 	}
 
-	var entityFields []*Field
+	var entityFields []*fields.Field
 	for _, field := range change.Fields {
 		if v.shouldIgnoreField(change.Entity, field.Name) {
 			continue
@@ -115,30 +117,23 @@ func (v *Validator) handleEntityChange(ctx context.Context, blockNum uint64, cha
 	}
 
 	for _, field := range entityFields {
-		prefix := fmt.Sprintf("[%d] %s.%s.%s", blockNum, subgraphEntity, change.Id, field.substreamsField)
+		prefix := fmt.Sprintf("[%d] %s.%s.%s", blockNum, subgraphEntity, change.Id, field.SubstreamsField)
 
-		subgraphValue := gjson.GetBytes(resp, field.graphqlJSONPath).String()
-		actualValue, err := field.objFactory(subgraphValue)
+		subgraphValue := gjson.GetBytes(resp, field.GraphqlJSONPath).String()
+		actualValue, err := field.ObjFactory(subgraphValue)
 		if err != nil {
 			return fmt.Errorf("failed to parse %s: %w", subgraphValue, err)
 
 		}
 
-		if field.obj.eql(actualValue) {
+		if field.Obj.Eql(actualValue) {
 			v.stats.successCount++
 			fmt.Printf("✅ %s\n", prefix)
 		} else {
 			v.stats.failedCount++
-			fmt.Printf("❌ %s: sub: %s <-> grql: %s\n", prefix, field.obj.string(), subgraphValue)
+			fmt.Printf("❌ %s: sub: %s <-> grql: %s\n", prefix, field.Obj.String(), subgraphValue)
 		}
 	}
 	return nil
 
-}
-
-func normalizeEntityName(s string) string {
-	if len(s) != 0 && (s[0] <= 90 && s[0] >= 65) {
-		return string(s[0]+32) + string(s[1:])
-	}
-	return s
 }

@@ -3,12 +3,14 @@ package validator
 import (
 	"fmt"
 	"strings"
+
+	"github.com/streamingfast/substreams-test/validator/fields"
 )
 
-func queryFromEntity(entity string, fields []*Field) string {
+func queryFromEntity(entity string, fields []*fields.Field) string {
 	sfield := []string{}
 	for _, f := range fields {
-		sfield = append(sfield, f.graphqlField)
+		sfield = append(sfield, f.GraphqlField)
 	}
 	return fmt.Sprintf(`
 query($block: Int!,$id: String!) {
