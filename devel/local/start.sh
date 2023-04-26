@@ -15,7 +15,7 @@ main() {
     shift $(($OPTIND - 1))
     version=$1
     if ! echo "$version" |grep -qE "(^main|^prod-minimal$)"; then
-      error "Invalid version: $version, expected minimal or prod"
+      error "Invalid version: $version, expected minimal or prod-minimal"
     fi
 
     configJsonnet="main.jsonnet"
