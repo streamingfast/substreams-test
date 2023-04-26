@@ -1,5 +1,7 @@
 package validator
 
+import "github.com/streamingfast/substreams-test/validator/config"
+
 func (v *Validator) shouldIgnoreEntity(entityName string) bool {
 	if entity, found := v.config[entityName]; found {
 		return entity.Ignore
@@ -45,11 +47,11 @@ func (v *Validator) isGraphQLArrayField(entityName string, fieldName string) boo
 	return false
 }
 
-func (v *Validator) getFieldOpt(entityName string, fieldName string) map[string]interface{} {
+func (v *Validator) getFieldOpt(entityName string, fieldName string) config.Options {
 	if entity, found := v.config[entityName]; found {
 		if field, ok := entity.Fields[fieldName]; ok {
 			return field.Opt
 		}
 	}
-	return map[string]interface{}{}
+	return config.Options{}
 }

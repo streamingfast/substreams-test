@@ -8,10 +8,12 @@ import (
 	"testing"
 
 	"github.com/streamingfast/substreams-test/thegraph"
+	"github.com/streamingfast/substreams-test/validator/config"
 
-	pbentities "github.com/streamingfast/substreams-test/pb/entity/v1"
 	"github.com/test-go/testify/require"
 	"google.golang.org/protobuf/proto"
+
+	pbentities "github.com/streamingfast/substreams-test/pb/entity/v1"
 )
 
 func TestValidator_handleEntityChanges(t *testing.T) {
@@ -39,11 +41,11 @@ func TestValidator_handleEntityChanges(t *testing.T) {
 			require.NoError(t, err)
 			v := &Validator{
 				graphClient: thegraph.New("https://api.thegraph.com/subgraphs/name/ianlapham/v3-minimal", thegraph.WithLogger(zlog)),
-				config: Config{
-					"PositionSnapshot": &EntityConfig{
+				config: config.Config{
+					"PositionSnapshot": &config.EntityConfig{
 						Ignore: true,
 					},
-					"Position": &EntityConfig{
+					"Position": &config.EntityConfig{
 						Ignore: true,
 					},
 				},

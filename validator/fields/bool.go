@@ -1,10 +1,14 @@
 package fields
 
+import (
+	"github.com/streamingfast/substreams-test/validator/config"
+)
+
 type Bool struct {
 	v bool
 }
 
-func newBool(v bool, opt map[string]interface{}) *Bool {
+func newBool(v bool, opt config.Options) *Bool {
 	return &Bool{v: v}
 }
 

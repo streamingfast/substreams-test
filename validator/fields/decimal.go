@@ -3,21 +3,17 @@ package fields
 import (
 	"fmt"
 	"math/big"
+
+	"github.com/streamingfast/substreams-test/validator/config"
 )
 
 type Decimal struct {
+	config.Options
 	v *big.Float
-
-	error     *float64
-	tolerance *float64
 }
 
-func newDecimal(v *big.Float, opt map[string]interface{}) *Decimal {
-	f := &Decimal{v: v}
-
-	f.error, f.tolerance = extractErrorAndTolerance(opt)
-
-	return f
+func newDecimal(v *big.Float, opt config.Options) *Decimal {
+	return &Decimal{v: v, Options: opt}
 }
 
 func newDecimalFromStr(v string) (Comparable, error) {
@@ -32,13 +28,26 @@ func (f *Decimal) Eql(v Comparable) bool {
 	expected := f.v
 	actual := v.(*Decimal).v
 
-	if f.tolerance != nil {
-		ok, _ := validTolerance(expected, actual, *f.tolerance)
+	if f.Tolerance != nil {
+		ok, _ := validTolerance(expected, actual, *f.Tolerance)
 		return ok
 	}
 
-	if f.error != nil {
-		ok, _ := validateErrorPercent(expected, actual, *f.error)
+	if f.Precision != nil {
+		return validFloatWithPrecision(expected, actual, *f.Precision)
+	}
+
+	if f.Round != "" {
+		switch f.Round {
+		case "shortest":
+			return validFloatWithShortRound(expected, actual)
+		default:
+			panic(fmt.Sprintf("unsupported round mode %q", f.Round))
+		}
+	}
+
+	if f.Error != nil {
+		ok, _ := validateErrorPercent(expected, actual, *f.Error)
 		return ok
 	}
 

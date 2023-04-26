@@ -4,23 +4,25 @@ import (
 	"context"
 	"fmt"
 
+	config2 "github.com/streamingfast/substreams-test/validator/config"
 	"github.com/streamingfast/substreams-test/validator/fields"
 
 	"github.com/tidwall/gjson"
 
 	sink "github.com/streamingfast/substreams-sink"
-	pbentities "github.com/streamingfast/substreams-test/pb/entity/v1"
-	"github.com/streamingfast/substreams-test/thegraph"
 	pbsubstreamsrpc "github.com/streamingfast/substreams/pb/sf/substreams/rpc/v2"
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/proto"
+
+	pbentities "github.com/streamingfast/substreams-test/pb/entity/v1"
+	"github.com/streamingfast/substreams-test/thegraph"
 )
 
 type Validator struct {
 	graphClient *thegraph.Client
 
 	stats         *Stats
-	config        Config
+	config        config2.Config
 	showOnlyError bool
 
 	logger *zap.Logger
@@ -34,7 +36,7 @@ func WithOnlyError() Option {
 		return v
 	}
 }
-func New(config Config, graphClient *thegraph.Client, logger *zap.Logger, opts ...Option) *Validator {
+func New(config config2.Config, graphClient *thegraph.Client, logger *zap.Logger, opts ...Option) *Validator {
 	v := &Validator{
 		graphClient: graphClient,
 		stats: &Stats{

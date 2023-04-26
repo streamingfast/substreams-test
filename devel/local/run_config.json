@@ -36,6 +36,11 @@
    },
    "Mint": {
       "fields": {
+         "amountUSD": {
+            "opt": {
+               "round": "shortest"
+            }
+         },
          "pool": {
             "association": true
          },
@@ -92,7 +97,7 @@
          },
          "volumeUSD": {
             "opt": {
-               "round": "volumeUSD"
+               "round": "shortest"
             }
          }
       }

@@ -9,8 +9,11 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/streamingfast/cli/sflags"
 	sink "github.com/streamingfast/substreams-sink"
+
 	"github.com/streamingfast/substreams-test/thegraph"
 	"github.com/streamingfast/substreams-test/validator"
+	"github.com/streamingfast/substreams-test/validator/config"
+
 	"go.uber.org/zap"
 )
 
@@ -60,7 +63,7 @@ func runCmdE(cmd *cobra.Command, args []string) (err error) {
 		zap.Bool("only_error", onlyError),
 	)
 
-	config, err := validator.ReadConfigFromFile(configPath)
+	config, err := config.ReadConfigFromFile(configPath)
 	if err != nil {
 		return fmt.Errorf("failed to read confile file %q: %w", configPath, err)
 	}

@@ -1,4 +1,4 @@
-package validator
+package config
 
 import (
 	"encoding/json"
@@ -18,12 +18,19 @@ type EntityConfig struct {
 }
 
 type FieldConfig struct {
-	Association bool                   `json:"association,omitempty"`
-	Array       bool                   `json:"array,omitempty"`
-	Ignore      bool                   `json:"ignore,omitempty"`
-	Rename      string                 `json:"rename,omitempty"`
-	Error       uint                   `json:"error,omitempty"`
-	Opt         map[string]interface{} `json:"opt,omitempty"`
+	Association bool   `json:"association,omitempty"`
+	Array       bool   `json:"array,omitempty"`
+	Ignore      bool   `json:"ignore,omitempty"`
+	Rename      string `json:"rename,omitempty"`
+
+	Opt Options `json:"opt,omitempty"`
+}
+
+type Options struct {
+	Error     *float64 `json:"error,omitempty"`
+	Tolerance *float64 `json:"tolerance,omitempty"`
+	Precision *int     `json:"precision,omitempty"`
+	Round     string   `json:"round,omitempty"`
 }
 
 func ReadConfigFromFile(path string) (Config, error) {

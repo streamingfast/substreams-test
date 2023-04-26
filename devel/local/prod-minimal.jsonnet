@@ -13,7 +13,7 @@ local base = {
             "untrackedVolumeUSD": { "rename": "volumeUSDUntracked" },
             "token0Price": {"opt": {"round": "shortest"}},
             "token1Price": {"opt": {"round": "shortest"}},
-            volumeUSD: {opt: {round: "volumeUSD"}}
+            volumeUSD: {opt: {round: "shortest"}}
         }
     },
   "Token": {

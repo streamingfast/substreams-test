@@ -4,20 +4,20 @@ import (
 	"fmt"
 	"math/big"
 	"strconv"
+
+	"github.com/streamingfast/substreams-test/validator/config"
 )
 
 type Int32 struct {
+	config.Options
 	v int32
-
-	error     *float64
-	tolerance *float64
 }
 
-func newInt32(v int32, opt map[string]interface{}) *Int32 {
-	f := &Int32{v: v}
-	f.error, f.tolerance = extractErrorAndTolerance(opt)
-	return f
-
+func newInt32(v int32, opt config.Options) *Int32 {
+	return &Int32{
+		Options: opt,
+		v:       v,
+	}
 }
 
 func newInt32FromStr(v string) (Comparable, error) {
@@ -32,13 +32,13 @@ func (f *Int32) Eql(v Comparable) bool {
 	expected := new(big.Float).SetInt64(int64(f.v))
 	actual := new(big.Float).SetInt64(int64(v.(*Int32).v))
 
-	if f.tolerance != nil {
-		ok, _ := validTolerance(expected, actual, *f.tolerance)
+	if f.Tolerance != nil {
+		ok, _ := validTolerance(expected, actual, *f.Tolerance)
 		return ok
 	}
 
-	if f.error != nil {
-		ok, _ := validateErrorPercent(expected, actual, *f.error)
+	if f.Error != nil {
+		ok, _ := validateErrorPercent(expected, actual, *f.Error)
 		return ok
 	}
 

@@ -6,6 +6,7 @@ import (
 	"math/big"
 
 	pbentities "github.com/streamingfast/substreams-test/pb/entity/v1"
+	"github.com/streamingfast/substreams-test/validator/config"
 )
 
 type Field struct {
@@ -25,7 +26,7 @@ type Comparable interface {
 	String() string
 }
 
-func ParseValue(value *pbentities.Value, fieldOpt map[string]interface{}) (Comparable, ComparableFactory) {
+func ParseValue(value *pbentities.Value, fieldOpt config.Options) (Comparable, ComparableFactory) {
 	switch newValue := value.Typed.(type) {
 	case *pbentities.Value_Int32:
 		return newInt32(newValue.Int32, fieldOpt), newInt32FromStr

@@ -7,13 +7,15 @@ import (
 	"strings"
 
 	"github.com/streamingfast/eth-go"
+
+	"github.com/streamingfast/substreams-test/validator/config"
 )
 
 type Bytes struct {
 	v []byte
 }
 
-func newBytes(v []byte, opt map[string]interface{}) *Bytes {
+func newBytes(v []byte, opt config.Options) *Bytes {
 	return &Bytes{v: v}
 }
 

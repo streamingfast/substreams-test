@@ -3,20 +3,17 @@ package fields
 import (
 	"fmt"
 	"math/big"
+
+	"github.com/streamingfast/substreams-test/validator/config"
 )
 
 type Bigint struct {
-	v         *big.Int
-	error     *float64
-	tolerance *float64
+	config.Options
+	v *big.Int
 }
 
-func newBigint(v *big.Int, opt map[string]interface{}) *Bigint {
-	f := &Bigint{v: v}
-
-	f.error, f.tolerance = extractErrorAndTolerance(opt)
-
-	return f
+func newBigint(v *big.Int, opt config.Options) *Bigint {
+	return &Bigint{v: v, Options: opt}
 }
 
 func newBigintFromStr(v string) (Comparable, error) {
@@ -31,13 +28,13 @@ func (f *Bigint) Eql(v Comparable) bool {
 	expected := new(big.Float).SetInt(f.v)
 	actual := new(big.Float).SetInt(v.(*Bigint).v)
 
-	if f.tolerance != nil {
-		ok, _ := validTolerance(expected, actual, *f.tolerance)
+	if f.Tolerance != nil {
+		ok, _ := validTolerance(expected, actual, *f.Tolerance)
 		return ok
 	}
 
-	if f.error != nil {
-		ok, _ := validateErrorPercent(expected, actual, *f.error)
+	if f.Error != nil {
+		ok, _ := validateErrorPercent(expected, actual, *f.Error)
 		return ok
 	}
 

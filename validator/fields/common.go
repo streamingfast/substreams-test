@@ -1,6 +1,8 @@
 package fields
 
-import "math/big"
+import (
+	"math/big"
+)
 
 // (substreams - subgraph)/substream * 100.0
 func validateErrorPercent(expected, actual *big.Float, errorPercent float64) (bool, float64) {
@@ -23,26 +25,18 @@ func validTolerance(expected, actual *big.Float, tolerance float64) (bool, float
 		return false, v
 	}
 	return true, v
-
 }
 
-func extractErrorAndTolerance(opts map[string]interface{}) (*float64, *float64) {
+func validFloatWithPrecision(expected, actual *big.Float, precision int) bool {
+	roundedExpected := new(big.Float).SetPrec(uint(precision)).SetMode(big.ToZero).Copy(expected)
+	roundedActual := new(big.Float).SetPrec(uint(precision)).SetMode(big.ToZero).Copy(actual)
+	return roundedExpected.Cmp(roundedActual) == 0
+}
 
-	errpercInt, errpercIntOk := opts["error"]
-	toleranceInt, toleranceIntOk := opts["tolerance"]
-
-	if errpercIntOk && toleranceIntOk {
-		panic("error and tolerance are mutually exclusive when comparing numerical values")
+func validFloatWithShortRound(expected, actual *big.Float) bool {
+	precision := expected.Prec()
+	if actPrec := actual.Prec(); actPrec < precision {
+		precision = actPrec
 	}
-
-	if errpercIntOk {
-		v := errpercInt.(float64)
-		return &v, nil
-	}
-
-	if toleranceIntOk {
-		v := toleranceInt.(float64)
-		return nil, &v
-	}
-	return nil, nil
+	return validFloatWithPrecision(expected, actual, int(precision))
 }
