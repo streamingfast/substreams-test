@@ -19,13 +19,22 @@ import (
 type Validator struct {
 	graphClient *thegraph.Client
 
-	stats  *Stats
-	config Config
+	stats         *Stats
+	config        Config
+	showOnlyError bool
 
 	logger *zap.Logger
 }
 
-func New(config Config, graphClient *thegraph.Client, logger *zap.Logger) *Validator {
+type Option func(v *Validator) *Validator
+
+func WithOnlyError() Option {
+	return func(v *Validator) *Validator {
+		v.showOnlyError = true
+		return v
+	}
+}
+func New(config Config, graphClient *thegraph.Client, logger *zap.Logger, opts ...Option) *Validator {
 	v := &Validator{
 		graphClient: graphClient,
 		stats: &Stats{
@@ -36,6 +45,9 @@ func New(config Config, graphClient *thegraph.Client, logger *zap.Logger) *Valid
 		logger: logger,
 	}
 
+	for _, opt := range opts {
+		v = opt(v)
+	}
 	return v
 }
 
@@ -66,7 +78,7 @@ func (v *Validator) HandleBlockUndoSignal(ctx context.Context, undoSignal *pbsub
 }
 
 func (v *Validator) handleEntityChanges(ctx context.Context, blockNum uint64, changes *pbentities.EntityChanges) error {
-	v.logger.Info("handling entity changes", zap.Uint64("block_num", blockNum), zap.Int("count", len(changes.EntityChanges)))
+	v.logger.Debug("handling entity changes", zap.Uint64("block_num", blockNum), zap.Int("count", len(changes.EntityChanges)))
 
 	for _, change := range changes.EntityChanges {
 		if err := v.handleEntityChange(ctx, blockNum, change); err != nil {
@@ -119,19 +131,25 @@ func (v *Validator) handleEntityChange(ctx context.Context, blockNum uint64, cha
 	for _, field := range entityFields {
 		prefix := fmt.Sprintf("[%d] %s.%s.%s", blockNum, subgraphEntity, change.Id, field.SubstreamsField)
 
-		subgraphValue := gjson.GetBytes(resp, field.GraphqlJSONPath).String()
-		actualValue, err := field.ObjFactory(subgraphValue)
-		if err != nil {
-			return fmt.Errorf("failed to parse %s: %w", subgraphValue, err)
+		subgraphValueRes := gjson.GetBytes(resp, field.GraphqlJSONPath)
+		if subgraphValueRes.Type == gjson.Null {
+			fmt.Printf("❌ %s: sub: %s <-> grql: NULL\n", prefix, field.Obj.String())
+			continue
+		}
 
+		actualValue, err := field.ObjFactory(subgraphValueRes.String())
+		if err != nil {
+			return fmt.Errorf("failed to convert subgraph value %s: %w", subgraphValueRes.String(), err)
 		}
 
 		if field.Obj.Eql(actualValue) {
 			v.stats.successCount++
-			fmt.Printf("✅ %s\n", prefix)
+			if !v.showOnlyError {
+				fmt.Printf("✅ %s\n", prefix)
+			}
 		} else {
 			v.stats.failedCount++
-			fmt.Printf("❌ %s: sub: %s <-> grql: %s\n", prefix, field.Obj.String(), subgraphValue)
+			fmt.Printf("❌ %s: sub: %s <-> grql: %s\n", prefix, field.Obj.String(), subgraphValueRes.String())
 		}
 	}
 	return nil

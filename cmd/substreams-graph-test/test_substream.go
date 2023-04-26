@@ -27,6 +27,7 @@ func init() {
 	testSubstreamCmd.Flags().String("output-module", "graph_out", "Output module under test, it needs to be of output type proto:substreams.entity.v1.EntityChanges")
 	testSubstreamCmd.Flags().StringP("endpoint", "e", "mainnet.eth.streamingfast.io:443", "Substreams endpoint")
 	testSubstreamCmd.Flags().String("graphql-cache-store", "./localdata/.cache", "TheGraph GraphQL response caches store")
+	testSubstreamCmd.Flags().Bool("only-error", false, "Only shows error")
 	sink.AddFlagsToSet(testSubstreamCmd.Flags())
 }
 
@@ -36,6 +37,9 @@ func runCmdE(cmd *cobra.Command, args []string) (err error) {
 	endpoint := sflags.MustGetString(cmd, "endpoint")
 	outputModuleName := sflags.MustGetString(cmd, "output-module")
 	graphqlCacheStore := sflags.MustGetString(cmd, "graphql-cache-store")
+
+	onlyError := sflags.MustGetBool(cmd, "only-error")
+
 	manifestPath := args[0]
 	graphURL := args[1]
 	configPath := args[2]
@@ -53,6 +57,7 @@ func runCmdE(cmd *cobra.Command, args []string) (err error) {
 		zap.String("block_range", blockRange),
 		zap.String("graphql_cache_store", graphqlCacheStore),
 		zap.String("config_path", configPath),
+		zap.Bool("only_error", onlyError),
 	)
 
 	config, err := validator.ReadConfigFromFile(configPath)
@@ -87,7 +92,11 @@ func runCmdE(cmd *cobra.Command, args []string) (err error) {
 
 	graphClient := thegraph.New(graphURL, opts...)
 
-	testRunner := validator.New(config, graphClient, zlog)
+	var valOpts []validator.Option
+	if onlyError {
+		valOpts = append(valOpts, validator.WithOnlyError())
+	}
+	testRunner := validator.New(config, graphClient, zlog, valOpts...)
 	t0 := time.Now()
 	s.Run(ctx, nil, testRunner)
 

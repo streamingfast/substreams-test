@@ -1,9 +1,6 @@
 {
    "Burn": {
       "fields": {
-         "id": {
-            "ignore": true
-         },
          "pool": {
             "association": true
          },
@@ -20,9 +17,6 @@
    },
    "Factory": {
       "fields": {
-         "id": {
-            "ignore": true
-         },
          "totalFeesETH": {
             "ignore": true
          },
@@ -42,9 +36,6 @@
    },
    "Mint": {
       "fields": {
-         "id": {
-            "ignore": true
-         },
          "pool": {
             "association": true
          },
@@ -59,10 +50,87 @@
          }
       }
    },
+   "PooHourData": {
+      "fields": {
+         "token0Price": {
+            "opt": {
+               "round": "shortest"
+            }
+         },
+         "token1Price": {
+            "opt": {
+               "round": "shortest"
+            }
+         },
+         "totalValueLock": {
+            "opt": {
+               "error": 2
+            }
+         }
+      }
+   },
    "Pool": {
       "fields": {
-         "id": {
-            "ignore": true
+         "token0": {
+            "association": true
+         },
+         "token0Price": {
+            "opt": {
+               "round": "shortest"
+            }
+         },
+         "token1": {
+            "association": true
+         },
+         "token1Price": {
+            "opt": {
+               "round": "shortest"
+            }
+         },
+         "untrackedVolumeUSD": {
+            "rename": "volumeUSDUntracked"
+         },
+         "volumeUSD": {
+            "opt": {
+               "round": "volumeUSD"
+            }
+         }
+      }
+   },
+   "PoolDayData": {
+      "fields": {
+         "pool": {
+            "association": true
+         },
+         "token0Price": {
+            "opt": {
+               "round": "shortest"
+            }
+         },
+         "token1Price": {
+            "opt": {
+               "round": "shortest"
+            }
+         }
+      }
+   },
+   "PoolHourData": {
+      "fields": {
+         "pool": {
+            "association": true
+         }
+      }
+   },
+   "Position": {
+      "fields": {
+         "pool": {
+            "association": true
+         },
+         "tickLower": {
+            "association": true
+         },
+         "tickUpper": {
+            "association": true
          },
          "token0": {
             "association": true
@@ -70,47 +138,31 @@
          "token1": {
             "association": true
          },
-         "token1Price": {
-            "opt": {
-               "tolerance": 0.012999999999999999
-            }
-         },
-         "untrackedVolumeUSD": {
-            "rename": "volumeUSDUntracked"
-         }
-      }
-   },
-   "PoolDayData": {
-      "fields": {
-         "id": {
-            "ignore": true
-         },
-         "pool": {
+         "transaction": {
             "association": true
          }
-      }
-   },
-   "PoolHourData": {
-      "fields": {
-         "id": {
-            "ignore": true
-         },
-         "pool": {
-            "association": true
-         }
-      }
-   },
-   "Position": {
+      },
       "ignore": true
    },
    "PositionSnapshot": {
+      "fields": {
+         "pool": {
+            "association": true
+         },
+         "position": {
+            "association": true
+         },
+         "token0": {
+            "association": true
+         },
+         "token1": {
+            "association": true
+         }
+      },
       "ignore": true
    },
    "Swap": {
       "fields": {
-         "id": {
-            "ignore": true
-         },
          "pool": {
             "association": true
          },
@@ -145,11 +197,11 @@
          "feesUSD": {
             "ignore": true
          },
-         "id": {
-            "ignore": true
-         },
          "liquidityProviderCount": {
             "ignore": true
+         },
+         "pool": {
+            "association": true
          },
          "untrackedVolumeUSD": {
             "ignore": true
@@ -167,7 +219,13 @@
    },
    "Token": {
       "fields": {
-         "id": {
+         "feeGrowthGlobal0X128": {
+            "ignore": true
+         },
+         "feeGrowthGlobal1X128": {
+            "ignore": true
+         },
+         "totalSupply": {
             "ignore": true
          },
          "totalValueLockedUSDUntracked": {
@@ -184,39 +242,25 @@
    },
    "TokenDayData": {
       "fields": {
-         "id": {
-            "ignore": true
-         },
          "token": {
             "association": true
          },
-         "tokenPrice": {
-            "ignore": true
+         "totalValueLock": {
+            "opt": {
+               "error": 2
+            }
          }
       }
    },
    "TokenHourData": {
       "fields": {
-         "id": {
-            "ignore": true
-         },
          "token": {
             "association": true
          },
-         "tokenPrice": {
-            "ignore": true
-         }
-      }
-   },
-   "Transaction": {
-      "fields": {
-         "gasUsed": {
+         "totalValueLock": {
             "opt": {
-               "error": 15
+               "error": 2
             }
-         },
-         "id": {
-            "ignore": true
          }
       }
    }

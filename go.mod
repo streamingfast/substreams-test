@@ -10,7 +10,7 @@ require (
 	github.com/streamingfast/eth-go v0.0.0-20230410173454-433bd8803da1
 	github.com/streamingfast/logging v0.0.0-20221209193439-bff11742bf4c
 	github.com/streamingfast/substreams v1.0.2-0.20230418195519-fa17a36fd728
-	github.com/streamingfast/substreams-sink v0.1.1-0.20230420140923-7ff9ff0d9805
+	github.com/streamingfast/substreams-sink v0.1.1-0.20230420161857-72fa2fe5072f
 	github.com/test-go/testify v1.1.4
 	github.com/tidwall/gjson v1.14.4
 	go.uber.org/zap v1.23.0
@@ -110,5 +110,3 @@ require (
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
-
-replace github.com/streamingfast/substreams-sink => ../substreams-sink

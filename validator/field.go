@@ -25,7 +25,6 @@ func (v *Validator) newField(substreamsEntity string, field *pbentities.Field) *
 	}
 
 	fieldOpt := v.getFieldOpt(substreamsEntity, field.Name)
-
 	out.Obj, out.ObjFactory = fields.ParseValue(field.NewValue, fieldOpt)
 
 	return out
