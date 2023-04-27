@@ -43,6 +43,7 @@ func TestValidator_errorPercent(t *testing.T) {
 }
 
 func TestValidator_validTolerance(t *testing.T) {
+
 	tests := []struct {
 		expect          *big.Float
 		actual          *big.Float

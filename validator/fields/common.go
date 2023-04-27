@@ -2,7 +2,6 @@ package fields
 
 import (
 	"math/big"
-	"strings"
 )
 
 // (substreams - subgraph)/substream * 100.0
@@ -28,27 +27,16 @@ func validTolerance(expected, actual *big.Float, tolerance float64) (bool, float
 	return true, v
 }
 
-var _10b = big.NewInt(10)
-
-func validFloatWithPrecision(expected, actual *big.Float, precision uint64) bool {
-	bigDecimals := new(big.Int).Exp(_10b, big.NewInt(int64(precision)), nil)
-	expectedWhole, _ := new(big.Float).Mul(expected, new(big.Float).SetInt(bigDecimals)).Int(nil)
-	actualWhole, _ := new(big.Float).Mul(actual, new(big.Float).SetInt(bigDecimals)).Int(nil)
-	return expectedWhole.Cmp(actualWhole) == 0
+func validFloatWithPrecision(expected, actual *big.Float, precision int) bool {
+	roundedExpected := new(big.Float).SetPrec(uint(precision)).SetMode(big.ToZero).Copy(expected)
+	roundedActual := new(big.Float).SetPrec(uint(precision)).SetMode(big.ToZero).Copy(actual)
+	return roundedExpected.Cmp(roundedActual) == 0
 }
 
 func validFloatWithShortRound(expected, actual *big.Float) bool {
-	precision := decimalCount(expected)
-	if actPrec := decimalCount(actual); actPrec < precision {
+	precision := expected.Prec()
+	if actPrec := actual.Prec(); actPrec < precision {
 		precision = actPrec
 	}
-	return validFloatWithPrecision(expected, actual, precision)
-}
-
-func decimalCount(v *big.Float) uint64 {
-	chunks := strings.Split(v.String(), ".")
-	if len(chunks) == 1 {
-		return 0
-	}
-	return uint64(len(chunks[1]))
+	return validFloatWithPrecision(expected, actual, int(precision))
 }
