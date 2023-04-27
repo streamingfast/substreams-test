@@ -23,7 +23,6 @@ func (s *Stats) Print() string {
 	sort.Strings(entities)
 	rows := [][]string{}
 	rows = append(rows, []string{"Entity", "Attr", "Total", "Success", "Failed"})
-	rows = append(rows, []string{"", "", fmt.Sprintf("%d", s.totalCount), ratioStr(s.successCount, s.totalCount), ratioStr(s.failedCount, s.totalCount)})
 
 	for _, ent := range entities {
 		rows = append(rows, []string{
@@ -34,7 +33,13 @@ func (s *Stats) Print() string {
 			ratioStr(s.entities[ent].failedCount, s.entities[ent].totalCount),
 		})
 
-		for fieldName, fieldStats := range s.entities[ent].fields {
+		fields := []string{}
+		for fieldName, _ := range s.entities[ent].fields {
+			fields = append(fields, fieldName)
+		}
+		sort.Strings(fields)
+		for _, fieldName := range fields {
+			fieldStats := s.entities[ent].fields[fieldName]
 			rows = append(rows, []string{
 				ent,
 				fieldName,
@@ -44,6 +49,7 @@ func (s *Stats) Print() string {
 			})
 		}
 	}
+	rows = append(rows, []string{"", "", fmt.Sprintf("%d", s.totalCount), ratioStr(s.successCount, s.totalCount), ratioStr(s.failedCount, s.totalCount)})
 
 	out := []string{}
 	for _, r := range rows {

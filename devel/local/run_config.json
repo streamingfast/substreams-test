@@ -57,6 +57,12 @@
    },
    "Pool": {
       "fields": {
+         "feeGrowthGlobal0X128": {
+            "ignore": true
+         },
+         "feeGrowthGlobal1X128": {
+            "ignore": true
+         },
          "token0": {
             "association": true
          },
@@ -85,6 +91,12 @@
    },
    "PoolDayData": {
       "fields": {
+         "feeGrowthGlobal0X128": {
+            "ignore": true
+         },
+         "feeGrowthGlobal1X128": {
+            "ignore": true
+         },
          "high": {
             "opt": {
                "round": "shortest"
@@ -95,12 +107,12 @@
          },
          "token0Price": {
             "opt": {
-               "error": 1.0000000000000001e-05
+               "round": "shortest"
             }
          },
          "token1Price": {
             "opt": {
-               "error": 1.0000000000000001e-05
+               "round": "shortest"
             }
          }
       }
@@ -112,12 +124,12 @@
          },
          "token0Price": {
             "opt": {
-               "error": 1.0000000000000001e-05
+               "round": "shortest"
             }
          },
          "token1Price": {
             "opt": {
-               "error": 1.0000000000000001e-05
+               "round": "shortest"
             }
          }
       }
@@ -249,15 +261,75 @@
    },
    "TokenDayData": {
       "fields": {
+         "feesUSD": {
+            "opt": {
+               "round": "shortest"
+            }
+         },
+         "priceUSD": {
+            "opt": {
+               "round": "shortest"
+            }
+         },
          "token": {
             "association": true
+         },
+         "totalValueLocked": {
+            "opt": {
+               "round": "shortest"
+            }
+         },
+         "totalValueLockedUSD": {
+            "opt": {
+               "round": "shortest"
+            }
+         },
+         "volume": {
+            "opt": {
+               "round": "shortest"
+            }
+         },
+         "volumeUSD": {
+            "opt": {
+               "round": "shortest"
+            }
          }
       }
    },
    "TokenHourData": {
       "fields": {
+         "feesUSD": {
+            "opt": {
+               "round": "shortest"
+            }
+         },
+         "priceUSD": {
+            "opt": {
+               "round": "shortest"
+            }
+         },
          "token": {
             "association": true
+         },
+         "totalValueLocked": {
+            "opt": {
+               "round": "shortest"
+            }
+         },
+         "totalValueLockedUSD": {
+            "opt": {
+               "round": "shortest"
+            }
+         },
+         "volume": {
+            "opt": {
+               "round": "shortest"
+            }
+         },
+         "volumeUSD": {
+            "opt": {
+               "round": "shortest"
+            }
          }
       }
    }

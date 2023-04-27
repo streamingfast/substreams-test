@@ -3,6 +3,8 @@ module github.com/streamingfast/substreams-test
 go 1.20
 
 require (
+	github.com/ryanuber/columnize v2.1.2+incompatible
+	github.com/shopspring/decimal v1.3.1
 	github.com/spf13/cobra v1.7.0
 	github.com/spf13/viper v1.15.0
 	github.com/streamingfast/cli v0.0.4-0.20230420050158-aee4f9637f40
@@ -11,6 +13,7 @@ require (
 	github.com/streamingfast/logging v0.0.0-20221209193439-bff11742bf4c
 	github.com/streamingfast/substreams v1.0.2-0.20230418195519-fa17a36fd728
 	github.com/streamingfast/substreams-sink v0.1.1-0.20230420161857-72fa2fe5072f
+	github.com/stretchr/testify v1.8.1
 	github.com/test-go/testify v1.1.4
 	github.com/tidwall/gjson v1.14.4
 	go.uber.org/zap v1.23.0
@@ -72,7 +75,6 @@ require (
 	github.com/prometheus/common v0.32.1 // indirect
 	github.com/prometheus/procfs v0.7.3 // indirect
 	github.com/rogpeppe/go-internal v1.10.0 // indirect
-	github.com/ryanuber/columnize v2.1.2+incompatible // indirect
 	github.com/spf13/afero v1.9.3 // indirect
 	github.com/spf13/cast v1.5.0 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
@@ -85,7 +87,6 @@ require (
 	github.com/streamingfast/opaque v0.0.0-20210811180740-0c01d37ea308 // indirect
 	github.com/streamingfast/pbgo v0.0.6-0.20220630154121-2e8bba36234e // indirect
 	github.com/streamingfast/shutter v1.5.0 // indirect
-	github.com/stretchr/testify v1.8.1 // indirect
 	github.com/subosito/gotenv v1.4.2 // indirect
 	github.com/tidwall/match v1.1.1 // indirect
 	github.com/tidwall/pretty v1.2.1 // indirect
@@ -110,8 +111,4 @@ require (
 	google.golang.org/grpc v1.54.0 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
-)
-
-replace (
-	github.com/streamingfast/substreams-sink => ../substreams-sink
 )

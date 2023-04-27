@@ -13,7 +13,9 @@ local base = {
           untrackedVolumeUSD: { rename: "volumeUSDUntracked" },
           token0Price: {opt: {round: "shortest"}},
           token1Price: {opt: {round: "shortest"}},
-          volumeUSD: {opt: {round: "shortest"}}
+          volumeUSD: {opt: {round: "shortest"}},
+          feeGrowthGlobal0X128: { ignore: true }, // field not present in minimal
+          feeGrowthGlobal1X128: { ignore: true},     // field not present in minimal
       }
   },
   Token: {
@@ -46,7 +48,6 @@ local base = {
      feesUSD: {opt: {round: "shortest"}},
      totalValueLockedUSD: {opt: {round: "shortest"}},
      volume: {opt: {round: "shortest"}},
-     totalValueLocked: {opt: {round: "shortest"}},
      priceUSD: {opt: {round: "shortest"}},
      totalValueLocked: {opt: {round: "shortest"}},
     }
@@ -59,7 +60,6 @@ local base = {
       volume: {opt: {round: "shortest"}},
       totalValueLocked: {opt: {round: "shortest"}},
       priceUSD: {opt: {round: "shortest"}},
-      totalValueLocked: {opt: {round: "shortest"}},
     }
   },
   Mint: {

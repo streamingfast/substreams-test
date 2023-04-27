@@ -154,11 +154,11 @@ func (v *Validator) handleEntityChange(ctx context.Context, blockNum uint64, cha
 		if field.Obj.Eql(actualValue) {
 			v.stats.Success(change.Entity, field.SubstreamsField)
 			if !v.showOnlyError {
-				fmt.Printf("✅ %s\n", prefix)
+				fmt.Printf("✅ %-120s ✅ sub: %s <-> grql: %s\n", prefix, field.Obj.String(), subgraphValueRes.String())
 			}
 		} else {
 			v.stats.Fail(change.Entity, field.SubstreamsField)
-			fmt.Printf("❌ %s: sub: %s <-> grql: %s\n", prefix, field.Obj.String(), subgraphValueRes.String())
+			fmt.Printf("❌ %-120s ❌ sub: %s <-> grql: %s\n", prefix, field.Obj.String(), subgraphValueRes.String())
 		}
 	}
 	return nil
