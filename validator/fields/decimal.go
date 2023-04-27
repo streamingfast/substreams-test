@@ -34,7 +34,7 @@ func (f *Decimal) Eql(v Comparable) bool {
 	}
 
 	if f.Precision != nil {
-		return validFloatWithPrecision(expected, actual, *f.Precision)
+		return validFloatWithPrecision(expected, actual, uint64(*f.Precision))
 	}
 
 	if f.Round != "" {
