@@ -113,14 +113,12 @@ func runCmdE(cmd *cobra.Command, args []string) (err error) {
 	fmt.Println()
 	fmt.Println("Summary Stats")
 	fmt.Printf(" > Duration %s\n", time.Since(t0).String())
-	fmt.Printf(" > Ran %d comparaisons\n", stats.GetTestCount())
-	fmt.Printf("     > %d succeded\n", stats.GetSuccessCount())
-	fmt.Printf("     > %d failed\n", stats.GetFailedCount())
-
-	fmt.Println("")
+	fmt.Printf(" > Block %d blocks [%d-%d]\n", testRunner.CurrentBlock-testRunner.FirstBlock, testRunner.FirstBlock, testRunner.CurrentBlock)
 	fmt.Printf(" > Perform %d GraphQL Queries\n", graphClient.GetTotalQueries())
 	fmt.Printf("     > %d cache hit\n", graphClient.GetCacheHitCount())
 	fmt.Printf("     > %d cache missed\n", graphClient.GetCacheMissCount())
 
+	fmt.Println("")
+	fmt.Println(stats.Print())
 	return
 }

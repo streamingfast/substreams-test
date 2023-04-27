@@ -218,6 +218,12 @@
          }
       }
    },
+   "TickDayData": {
+      "ignore": true
+   },
+   "TickHourData": {
+      "ignore": true
+   },
    "Token": {
       "fields": {
          "feeGrowthGlobal0X128": {

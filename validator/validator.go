@@ -26,6 +26,9 @@ type Validator struct {
 	showOnlyError bool
 
 	logger *zap.Logger
+
+	FirstBlock   uint64
+	CurrentBlock uint64
 }
 
 type Option func(v *Validator) *Validator
@@ -39,12 +42,9 @@ func WithOnlyError() Option {
 func New(config config2.Config, graphClient *thegraph.Client, logger *zap.Logger, opts ...Option) *Validator {
 	v := &Validator{
 		graphClient: graphClient,
-		stats: &Stats{
-			successCount: 0,
-			failedCount:  0,
-		},
-		config: config,
-		logger: logger,
+		stats:       newStats(),
+		config:      config,
+		logger:      logger,
 	}
 
 	for _, opt := range opts {
@@ -58,6 +58,12 @@ func (v *Validator) GetStats() *Stats {
 }
 
 func (v *Validator) HandleBlockScopedData(ctx context.Context, data *pbsubstreamsrpc.BlockScopedData, isLive *bool, cursor *sink.Cursor) error {
+	blockNum := cursor.Block().Num()
+	if v.FirstBlock == 0 {
+		v.FirstBlock = blockNum
+	}
+	v.CurrentBlock = blockNum
+
 	entityChanges := &pbentities.EntityChanges{}
 	err := proto.Unmarshal(data.GetOutput().GetMapOutput().GetValue(), entityChanges)
 	if err != nil {
@@ -72,7 +78,7 @@ func (v *Validator) HandleBlockScopedData(ctx context.Context, data *pbsubstream
 	if len(entityChanges.EntityChanges) == 0 {
 		return nil
 	}
-	return v.handleEntityChanges(ctx, cursor.Block().Num(), entityChanges)
+	return v.handleEntityChanges(ctx, blockNum, entityChanges)
 }
 
 func (v *Validator) HandleBlockUndoSignal(ctx context.Context, undoSignal *pbsubstreamsrpc.BlockUndoSignal, cursor *sink.Cursor) error {
@@ -80,6 +86,7 @@ func (v *Validator) HandleBlockUndoSignal(ctx context.Context, undoSignal *pbsub
 }
 
 func (v *Validator) handleEntityChanges(ctx context.Context, blockNum uint64, changes *pbentities.EntityChanges) error {
+
 	v.logger.Debug("handling entity changes", zap.Uint64("block_num", blockNum), zap.Int("count", len(changes.EntityChanges)))
 
 	for _, change := range changes.EntityChanges {
@@ -145,12 +152,12 @@ func (v *Validator) handleEntityChange(ctx context.Context, blockNum uint64, cha
 		}
 
 		if field.Obj.Eql(actualValue) {
-			v.stats.successCount++
+			v.stats.Success(change.Entity, field.SubstreamsField)
 			if !v.showOnlyError {
 				fmt.Printf("✅ %s\n", prefix)
 			}
 		} else {
-			v.stats.failedCount++
+			v.stats.Fail(change.Entity, field.SubstreamsField)
 			fmt.Printf("❌ %s: sub: %s <-> grql: %s\n", prefix, field.Obj.String(), subgraphValueRes.String())
 		}
 	}

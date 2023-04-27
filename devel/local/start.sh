@@ -3,6 +3,7 @@
 ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 stest="$ROOT/../stest"
+clean=
 
 finish() {
     kill -s TERM $active_pid &> /dev/null || true
@@ -12,7 +13,22 @@ main() {
   trap "finish" EXIT
   pushd "$ROOT" &> /dev/null
 
-    shift $(($OPTIND - 1))
+    while getopts "hc" opt; do
+      case $opt in
+        h) usage && exit 0;;
+        c) clean=true;;
+        \?) usage_error "Invalid option: -$OPTARG";;
+      esac
+    done
+    shift $((OPTIND-1))
+    [[ $1 = "--" ]] && shift
+
+    set -e
+
+    if [[ $clean == "true" ]]; then
+      rm -rf localdata &> /dev/null || true
+    fi
+
     version=$1
     if ! echo "$version" |grep -qE "(^main|^prod-minimal$)"; then
       error "Invalid version: $version, expected minimal or prod-minimal"
@@ -41,6 +57,15 @@ error() {
   exit_code="$2"
   printf "${RED} * $message * ${NC}\n"
   exit ${exit_code:-1}
+}
+
+usage() {
+  echo "usage: start.sh [-c]"
+  echo ""
+  echo "Start substreams test."
+  echo ""
+  echo "Options"
+  echo "    -c             Clean actual graphql cache"
 }
 
 
