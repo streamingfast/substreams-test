@@ -32,11 +32,17 @@ func ParseValue(value *pbentities.Value, fieldOpt config.Options) (Comparable, C
 		return newInt32(newValue.Int32, fieldOpt), newInt32FromStr
 
 	case *pbentities.Value_Bigdecimal:
-		nvalue, _ := new(big.Float).SetString(newValue.Bigdecimal)
-		return newDecimal(nvalue, fieldOpt), newDecimalFromStr
+		nvalue, err := newDecimalFromStr(newValue.Bigdecimal)
+		if err != nil {
+			panic(err)
+		}
+		return nvalue, newDecimalFromStr
 
 	case *pbentities.Value_Bigint:
-		nvalue, _ := new(big.Int).SetString(newValue.Bigint, 10)
+		nvalue, ok := new(big.Int).SetString(newValue.Bigint, 10)
+		if !ok {
+			panic(fmt.Errorf("failed to convert %q to bigint", newValue.Bigint))
+		}
 		return newBigint(nvalue, fieldOpt), newBigintFromStr
 
 	case *pbentities.Value_String_:

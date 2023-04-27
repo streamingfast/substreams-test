@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"math/big"
 
+	"github.com/shopspring/decimal"
+
 	"github.com/streamingfast/substreams-test/validator/config"
 )
 
@@ -13,14 +15,14 @@ type Decimal struct {
 	str string
 }
 
-func newDecimal(v *big.Float, opt config.Options) *Decimal {
-	return &Decimal{v: v, Options: opt}
-}
-
 func newDecimalFromStr(v string) (Comparable, error) {
 	value, ok := new(big.Float).SetString(v)
 	if !ok {
 		return nil, fmt.Errorf("failed to convert %q to bigfloat", v)
+	}
+	_, err := decimal.NewFromString(v)
+	if err != nil {
+		return nil, fmt.Errorf("failed parsing %q as a decimal: %w", err)
 	}
 	return &Decimal{v: value, str: v}, nil
 }
