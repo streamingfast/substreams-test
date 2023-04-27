@@ -1,67 +1,67 @@
 {
   Factory: {
     fields: {
-    }
+    },
   },
   Pool: {
     fields: {
       token1: { association: true },
-      token0: { association: true }
-    }
+      token0: { association: true },
+    },
   },
   Token: {
     fields: {
-      whitelistPools: { association: true, array: true }
-    }
+      whitelistPools: { association: true, array: true },
+    },
   },
   Tick: {
     fields: {
-     pool: { association: true }
-    }
+      pool: { association: true },
+    },
   },
   Mint: {
     fields: {
       pool: { association: true },
       token1: { association: true },
       token0: { association: true },
-      transaction: { association: true }
-    }
+      transaction: { association: true },
+    },
   },
   Burn: {
-      fields: {
-        pool: { association: true },
-        token1: { association: true },
-        token0: { association: true },
-        transaction: { association: true }
-      }
+    fields: {
+      pool: { association: true },
+      token1: { association: true },
+      token0: { association: true },
+      transaction: { association: true },
     },
+  },
   Swap: {
     fields: {
       pool: { association: true },
       token1: { association: true },
       token0: { association: true },
-      transaction: { association: true }
-    }
+      transaction: { association: true },
+    },
   },
   PoolDayData: {
     fields: {
-      pool: { association: true }
-    }
+      pool: { association: true },
+    },
   },
   PoolHourData: {
     fields: {
-      pool: { association: true }
-    }
+      pool: { association: true },
+    },
   },
- TokenDayData: {
+  TokenDayData: {
     fields: {
-      token: { association: true }
-    }
+      token: { association: true },
+    },
   },
   TokenHourData: {
     fields: {
-      token: { association: true }
-    }
+      token: { association: true },
+    },
   },
   Position: {
     fields: {
@@ -70,8 +70,8 @@
       token1: { association: true },
       transaction: { association: true },
       tickLower: { association: true },
-      tickUpper: { association: true }
-    }
+      tickUpper: { association: true },
+    },
   },
   PositionSnapshot: {
     fields: {
@@ -79,6 +79,6 @@
       position: { association: true },
       token0: { association: true },
       token1: { association: true },
-    }
-  }
+    },
+  },
 }
