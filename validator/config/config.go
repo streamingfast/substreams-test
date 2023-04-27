@@ -29,7 +29,6 @@ type FieldConfig struct {
 type Options struct {
 	Error     *float64 `json:"error,omitempty"`
 	Tolerance *float64 `json:"tolerance,omitempty"`
-	Precision *int     `json:"precision,omitempty"`
 	Round     string   `json:"round,omitempty"`
 }
 

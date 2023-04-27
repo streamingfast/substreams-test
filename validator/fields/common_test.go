@@ -83,3 +83,8 @@ func TestValidator_validTolerance(t *testing.T) {
 	}
 
 }
+
+func TestSomething(t *testing.T) {
+	assert.True(t, validFloatWithShortRound("0.999", "0.9992"))
+	assert.False(t, validFloatWithShortRound("0.999", "0.9999"))
+}

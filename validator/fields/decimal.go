@@ -9,7 +9,8 @@ import (
 
 type Decimal struct {
 	config.Options
-	v *big.Float
+	v   *big.Float
+	str string
 }
 
 func newDecimal(v *big.Float, opt config.Options) *Decimal {
@@ -21,7 +22,7 @@ func newDecimalFromStr(v string) (Comparable, error) {
 	if !ok {
 		return nil, fmt.Errorf("failed to convert %q to bigfloat", v)
 	}
-	return &Decimal{v: value}, nil
+	return &Decimal{v: value, str: v}, nil
 }
 
 func (f *Decimal) Eql(v Comparable) bool {
@@ -33,13 +34,11 @@ func (f *Decimal) Eql(v Comparable) bool {
 		return ok
 	}
 
-	if f.Precision != nil {
-		return validFloatWithPrecision(expected, actual, *f.Precision)
-	}
-
 	if f.Round != "" {
 		switch f.Round {
 		case "shortest":
+			expected := f.str
+			actual := v.(*Decimal).str
 			return validFloatWithShortRound(expected, actual)
 		default:
 			panic(fmt.Sprintf("unsupported round mode %q", f.Round))
@@ -55,5 +54,5 @@ func (f *Decimal) Eql(v Comparable) bool {
 }
 
 func (f *Decimal) String() string {
-	return f.v.String()
+	return f.str
 }
