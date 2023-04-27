@@ -1,34 +1,34 @@
 local base = {
-  "Pool": {
-    "fields": {
-      "totalValueLockedETHUntracked": {"ignore": true}
+  Pool: {
+    fields: {
+      totalValueLockedETHUntracked: {ignore: true}
     }
   },
-  "PoolDayData": {
-    "fields": {
-      "totalValueLockedUSD": {"ignore": true}
+  PoolDayData: {
+    fields: {
+      totalValueLockedUSD: {ignore: true}
     }
   },
-  "PoolHourData": {
-    "fields": {
-      "totalValueLockedUSD": {"ignore": true}
+  PoolHourData: {
+    fields: {
+      totalValueLockedUSD: {ignore: true}
     }
   },
- "TokenDayData": {
-    "fields": {
-      "tokenPrice": {"ignore": true},
-      "volumeUSDUntracked": {"rename": "untrackedVolumeUSD" }
+ TokenDayData: {
+    fields: {
+      tokenPrice: {ignore: true},
+      volumeUSDUntracked: {rename: "untrackedVolumeUSD" }
     }
   },
-  "TokenHourData": {
-    "fields": {
-      "tokenPrice": {"ignore": true},
-      "volumeUSDUntracked": {"rename": "untrackedVolumeUSD" }
+  TokenHourData: {
+    fields: {
+      tokenPrice: {ignore: true},
+      volumeUSDUntracked: {rename: "untrackedVolumeUSD" }
     }
   },
-  "UniswapDayData": {
-    "fields": {
-      "totalValueLockedUSD": {"ignore": true}
+  UniswapDayData: {
+    fields: {
+      totalValueLockedUSD: {ignore: true}
     }
   }
 };

@@ -55,25 +55,6 @@
          }
       }
    },
-   "PooHourData": {
-      "fields": {
-         "token0Price": {
-            "opt": {
-               "round": "shortest"
-            }
-         },
-         "token1Price": {
-            "opt": {
-               "round": "shortest"
-            }
-         },
-         "totalValueLock": {
-            "opt": {
-               "error": 2
-            }
-         }
-      }
-   },
    "Pool": {
       "fields": {
          "token0": {
@@ -104,6 +85,11 @@
    },
    "PoolDayData": {
       "fields": {
+         "high": {
+            "opt": {
+               "round": "shortest"
+            }
+         },
          "pool": {
             "association": true
          },
@@ -123,6 +109,16 @@
       "fields": {
          "pool": {
             "association": true
+         },
+         "token0Price": {
+            "opt": {
+               "round": "shortest"
+            }
+         },
+         "token1Price": {
+            "opt": {
+               "round": "shortest"
+            }
          }
       }
    },
@@ -249,11 +245,6 @@
       "fields": {
          "token": {
             "association": true
-         },
-         "totalValueLock": {
-            "opt": {
-               "error": 2
-            }
          }
       }
    },
@@ -261,11 +252,6 @@
       "fields": {
          "token": {
             "association": true
-         },
-         "totalValueLock": {
-            "opt": {
-               "error": 2
-            }
          }
       }
    }
