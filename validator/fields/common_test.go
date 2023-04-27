@@ -5,10 +5,18 @@ import (
 	"math/big"
 	"testing"
 
+	"github.com/stretchr/testify/require"
 	"github.com/test-go/testify/assert"
 )
 
 func TestValidator_errorPercent(t *testing.T) {
+	bf := func(in string) *big.Float {
+		e, _, err := big.ParseFloat(in, 10, 64, big.ToNearestAway)
+		if err != nil {
+			require.NoError(t, err)
+		}
+		return e
+	}
 	tests := []struct {
 		expect             *big.Float
 		actual             *big.Float
@@ -29,6 +37,13 @@ func TestValidator_errorPercent(t *testing.T) {
 			errorPercent:       5.3,
 			expectBool:         false,
 			expecterrorPercent: 5.3571428571,
+		},
+		{
+			expect:             bf("0.000311147009695436285092442318800308911778113924614013850621487019379910004202707027884960798574336598"),
+			actual:             bf("0.0003111470096954362733861181240203676"),
+			errorPercent:       0.0000000000001,
+			expectBool:         true,
+			expecterrorPercent: 1e-14,
 		},
 	}
 

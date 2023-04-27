@@ -95,12 +95,12 @@
          },
          "token0Price": {
             "opt": {
-               "round": "shortest"
+               "error": 1.0000000000000001e-05
             }
          },
          "token1Price": {
             "opt": {
-               "round": "shortest"
+               "error": 1.0000000000000001e-05
             }
          }
       }
@@ -112,12 +112,12 @@
          },
          "token0Price": {
             "opt": {
-               "round": "shortest"
+               "error": 1.0000000000000001e-05
             }
          },
          "token1Price": {
             "opt": {
-               "round": "shortest"
+               "error": 1.0000000000000001e-05
             }
          }
       }

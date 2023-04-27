@@ -22,7 +22,7 @@ func newDecimalFromStr(v string) (Comparable, error) {
 	}
 	_, err := decimal.NewFromString(v)
 	if err != nil {
-		return nil, fmt.Errorf("failed parsing %q as a decimal: %w", err)
+		return nil, fmt.Errorf("failed parsing %q as a decimal: %w", v, err)
 	}
 	return &Decimal{v: value, str: v}, nil
 }

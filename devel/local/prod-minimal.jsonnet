@@ -27,15 +27,15 @@ local base = {
   },
   PoolDayData: {
     fields: {
-      token0Price: { opt: { round: 'shortest' } },
-      token1Price: { opt: { round: 'shortest' } },
+      token0Price: { opt: { "error": 0.00001 } },
+      token1Price: { opt: { "error": 0.00001 } },
       high: { opt: { round: 'shortest' } },
     },
   },
   PoolHourData: {
     fields: {
-      token0Price: { opt: { round: 'shortest' } },
-      token1Price: { opt: { round: 'shortest' } },
+      token0Price: { opt: { "error": 0.00001 } },
+      token1Price: { opt: { "error": 0.00001 } },
     },
   },
   TokenDayData: {
