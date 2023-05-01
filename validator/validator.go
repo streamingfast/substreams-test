@@ -86,7 +86,6 @@ func (v *Validator) HandleBlockUndoSignal(ctx context.Context, undoSignal *pbsub
 }
 
 func (v *Validator) handleEntityChanges(ctx context.Context, blockNum uint64, changes *pbentities.EntityChanges) error {
-
 	v.logger.Debug("handling entity changes", zap.Uint64("block_num", blockNum), zap.Int("count", len(changes.EntityChanges)))
 
 	for _, change := range changes.EntityChanges {

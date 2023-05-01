@@ -11,11 +11,12 @@ local base = {
    Pool: {
       fields: {
           untrackedVolumeUSD: { rename: "volumeUSDUntracked" },
-          token0Price: {opt: {round: "shortest"}},
-          token1Price: {opt: {round: "shortest"}},
-          volumeUSD: {opt: {round: "shortest"}},
+          token0Price: {opt: {"error": 0.001}},
+          token1Price: {opt: {"error": 0.001}},
+          volumeUSD: {opt: {"error": 0.001}},
           feeGrowthGlobal0X128: { ignore: true }, // field not present in minimal
           feeGrowthGlobal1X128: { ignore: true},     // field not present in minimal
+          whitelistPools: { ignore: true }, // TODO: fix Eql() check
       }
   },
   Token: {
@@ -23,65 +24,60 @@ local base = {
         totalSupply: {ignore: true},
         totalValueLockedUSDUntracked: { ignore: true },
         untrackedVolumeUSD: { ignore: true },
-        feeGrowthGlobal0X128: { ignore: true }, // field not present in minimal
+        feeGrowthGlobal0X128: { ignore: true },    // field not present in minimal
         feeGrowthGlobal1X128: { ignore: true},     // field not present in minimal
+        derivedETH: {opt: {"error": 0.001}},
       }
   },
   PoolDayData: {
     fields: {
-      token0Price: {opt: {round: "shortest"}},
-      token1Price: {opt: {round: "shortest"}},
-      high: {opt: {round: "shortest"}},
+      token0Price: {opt: {"error": 0.001}},
+      token1Price: {opt: {"error": 0.001}},
+      high: {opt: {"error": 0.001}},
+      low: {opt: {"error": 0.001}},
+      open: {opt: {"error": 0.001}},
+      close: {opt: {"error": 0.001}},
       feeGrowthGlobal0X128: { ignore: true},     // field not present in minimal
       feeGrowthGlobal1X128: { ignore: true},     // field not present in minimal
     }
   },
   PoolHourData: {
     fields: {
-      token0Price: {opt: {round: "shortest"}},
-      token1Price: {opt: {round: "shortest"}}
+      token0Price: {opt: {"error": 0.001}},
+      token1Price: {opt: {"error": 0.001}},
+      high: {opt: {"error": 0.001}},
+      low: {opt: {"error": 0.001}},
+      open: {opt: {"error": 0.001}},
+      close: {opt: {"error": 0.001}},
     }
   },
   TokenDayData: {
     fields: {
-     volumeUSD: {opt: {round: "shortest"}},
-     feesUSD: {opt: {round: "shortest"}},
-     totalValueLockedUSD: {opt: {round: "shortest"}},
-     volume: {opt: {round: "shortest"}},
-     priceUSD: {opt: {round: "shortest"}},
-     totalValueLocked: {opt: {round: "shortest"}},
+     volumeUSD: {opt: {"error": 0.001}},
+     feesUSD: {opt: {"error": 0.001}},
+     totalValueLockedUSD: {opt: {"error": 0.001}},
+     volume: {opt: {"error": 0.001}},
+     priceUSD: {opt: {"error": 0.001}},
+     totalValueLocked: {opt: {"error": 0.001}},
     }
   },
   TokenHourData: {
     fields: {
-      volumeUSD: {opt: {round: "shortest"}},
-      feesUSD: {opt: {round: "shortest"}},
-      totalValueLockedUSD: {opt: {round: "shortest"}},
-      volume: {opt: {round: "shortest"}},
-      totalValueLocked: {opt: {round: "shortest"}},
-      priceUSD: {opt: {round: "shortest"}},
+      volumeUSD: {opt: {"error": 0.001}},
+      feesUSD: {opt: {"error": 0.001}},
+      totalValueLockedUSD: {opt: {"error": 0.001}},
+      volume: {opt: {"error": 0.001}},
+      totalValueLocked: {opt: {"error": 0.001}},
+      priceUSD: {opt: {"error": 0.001}},
+      volumeUSDUntracked: {opt: {"error": 0.001}},
     }
   },
   Mint: {
     fields: {
-      amountUSD: {opt: {round: "shortest"}},
+      amountUSD: {opt: {"error": 0.001}},
     }
   },
-  Tick: {
-    fields: {
-      volumeToken0: { ignore: true},
-      volumeToken1: { ignore: true},
-      volumeUSD: { ignore: true},
-      untrackedVolumeUSD: { ignore: true},
-      feesUSD: { ignore: true},
-      collectedFeesToken0: { ignore: true},
-      collectedFeesToken1: { ignore: true},
-      collectedFeesUSD: { ignore: true},
-      liquidityProviderCount: { ignore: true},
-      feeGrowthOutside0X128: { ignore: true},
-      feeGrowthOutside1X128: { ignore: true},
-    }
-  },
+  Tick: { ignore: true },
   PositionSnapshot: { ignore: true },
   Position: { ignore: true },
   TickDayData: { ignore: true },

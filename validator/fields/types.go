@@ -20,6 +20,16 @@ type Field struct {
 	Obj        Comparable
 }
 
+func NewField(value *pbentities.Value, graphEntity string) *Field {
+	obj, objFactory := ParseValue(value, config.Options{})
+
+	return &Field{
+		graphEntity: graphEntity,
+		ObjFactory:  objFactory,
+		Obj:         obj,
+	}
+}
+
 type ComparableFactory func(string) (Comparable, error)
 type Comparable interface {
 	Eql(v Comparable) bool

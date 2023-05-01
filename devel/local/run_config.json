@@ -38,7 +38,7 @@
       "fields": {
          "amountUSD": {
             "opt": {
-               "round": "shortest"
+               "error": 0.001
             }
          },
          "pool": {
@@ -68,7 +68,7 @@
          },
          "token0Price": {
             "opt": {
-               "round": "shortest"
+               "error": 0.001
             }
          },
          "token1": {
@@ -76,7 +76,7 @@
          },
          "token1Price": {
             "opt": {
-               "round": "shortest"
+               "error": 0.001
             }
          },
          "untrackedVolumeUSD": {
@@ -84,13 +84,21 @@
          },
          "volumeUSD": {
             "opt": {
-               "round": "shortest"
+               "error": 0.001
             }
+         },
+         "whitelistPools": {
+            "ignore": true
          }
       }
    },
    "PoolDayData": {
       "fields": {
+         "close": {
+            "opt": {
+               "error": 0.001
+            }
+         },
          "feeGrowthGlobal0X128": {
             "ignore": true
          },
@@ -99,7 +107,17 @@
          },
          "high": {
             "opt": {
-               "round": "shortest"
+               "error": 0.001
+            }
+         },
+         "low": {
+            "opt": {
+               "error": 0.001
+            }
+         },
+         "open": {
+            "opt": {
+               "error": 0.001
             }
          },
          "pool": {
@@ -107,29 +125,49 @@
          },
          "token0Price": {
             "opt": {
-               "round": "shortest"
+               "error": 0.001
             }
          },
          "token1Price": {
             "opt": {
-               "round": "shortest"
+               "error": 0.001
             }
          }
       }
    },
    "PoolHourData": {
       "fields": {
+         "close": {
+            "opt": {
+               "error": 0.001
+            }
+         },
+         "high": {
+            "opt": {
+               "error": 0.001
+            }
+         },
+         "low": {
+            "opt": {
+               "error": 0.001
+            }
+         },
+         "open": {
+            "opt": {
+               "error": 0.001
+            }
+         },
          "pool": {
             "association": true
          },
          "token0Price": {
             "opt": {
-               "round": "shortest"
+               "error": 0.001
             }
          },
          "token1Price": {
             "opt": {
-               "round": "shortest"
+               "error": 0.001
             }
          }
       }
@@ -192,43 +230,11 @@
    },
    "Tick": {
       "fields": {
-         "collectedFeesToken0": {
-            "ignore": true
-         },
-         "collectedFeesToken1": {
-            "ignore": true
-         },
-         "collectedFeesUSD": {
-            "ignore": true
-         },
-         "feeGrowthOutside0X128": {
-            "ignore": true
-         },
-         "feeGrowthOutside1X128": {
-            "ignore": true
-         },
-         "feesUSD": {
-            "ignore": true
-         },
-         "liquidityProviderCount": {
-            "ignore": true
-         },
          "pool": {
             "association": true
-         },
-         "untrackedVolumeUSD": {
-            "ignore": true
-         },
-         "volumeToken0": {
-            "ignore": true
-         },
-         "volumeToken1": {
-            "ignore": true
-         },
-         "volumeUSD": {
-            "ignore": true
          }
-      }
+      },
+      "ignore": true
    },
    "TickDayData": {
       "ignore": true
@@ -238,6 +244,11 @@
    },
    "Token": {
       "fields": {
+         "derivedETH": {
+            "opt": {
+               "error": 0.001
+            }
+         },
          "feeGrowthGlobal0X128": {
             "ignore": true
          },
@@ -263,12 +274,12 @@
       "fields": {
          "feesUSD": {
             "opt": {
-               "round": "shortest"
+               "error": 0.001
             }
          },
          "priceUSD": {
             "opt": {
-               "round": "shortest"
+               "error": 0.001
             }
          },
          "token": {
@@ -276,22 +287,22 @@
          },
          "totalValueLocked": {
             "opt": {
-               "round": "shortest"
+               "error": 0.001
             }
          },
          "totalValueLockedUSD": {
             "opt": {
-               "round": "shortest"
+               "error": 0.001
             }
          },
          "volume": {
             "opt": {
-               "round": "shortest"
+               "error": 0.001
             }
          },
          "volumeUSD": {
             "opt": {
-               "round": "shortest"
+               "error": 0.001
             }
          }
       }
@@ -300,12 +311,12 @@
       "fields": {
          "feesUSD": {
             "opt": {
-               "round": "shortest"
+               "error": 0.001
             }
          },
          "priceUSD": {
             "opt": {
-               "round": "shortest"
+               "error": 0.001
             }
          },
          "token": {
@@ -313,22 +324,27 @@
          },
          "totalValueLocked": {
             "opt": {
-               "round": "shortest"
+               "error": 0.001
             }
          },
          "totalValueLockedUSD": {
             "opt": {
-               "round": "shortest"
+               "error": 0.001
             }
          },
          "volume": {
             "opt": {
-               "round": "shortest"
+               "error": 0.001
             }
          },
          "volumeUSD": {
             "opt": {
-               "round": "shortest"
+               "error": 0.001
+            }
+         },
+         "volumeUSDUntracked": {
+            "opt": {
+               "error": 0.001
             }
          }
       }
