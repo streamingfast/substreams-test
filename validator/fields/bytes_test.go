@@ -6,31 +6,27 @@ import (
 	"testing"
 )
 
-func Test_BigInt(t *testing.T) {
+func Test_bytes(t *testing.T) {
 	tests := []struct {
 		name         string
 		entityFields []*Field
 		expected     bool
 	}{
 		{
-			name: "big int values equal",
+			name: "bytes value equal",
 			entityFields: []*Field{
 				NewField(&pbentities.Value{
-					Typed: &pbentities.Value_Bigint{
-						Bigint: "10",
-					},
-				}, "10"),
+					Typed: &pbentities.Value_Bytes{Bytes: "qg=="},
+				}, "0xaa"),
 			},
 			expected: true,
 		},
 		{
-			name: "big int values not equal",
+			name: "bytes value not equal",
 			entityFields: []*Field{
 				NewField(&pbentities.Value{
-					Typed: &pbentities.Value_Bigint{
-						Bigint: "10",
-					},
-				}, "15"),
+					Typed: &pbentities.Value_Bytes{Bytes: "qg=="},
+				}, "0xbb"),
 			},
 			expected: false,
 		},

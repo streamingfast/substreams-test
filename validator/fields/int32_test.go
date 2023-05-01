@@ -6,31 +6,27 @@ import (
 	"testing"
 )
 
-func Test_BigInt(t *testing.T) {
+func Test_int32(t *testing.T) {
 	tests := []struct {
 		name         string
 		entityFields []*Field
 		expected     bool
 	}{
 		{
-			name: "big int values equal",
+			name: "int32 value equal",
 			entityFields: []*Field{
 				NewField(&pbentities.Value{
-					Typed: &pbentities.Value_Bigint{
-						Bigint: "10",
-					},
+					Typed: &pbentities.Value_Int32{Int32: 10},
 				}, "10"),
 			},
 			expected: true,
 		},
 		{
-			name: "big int values not equal",
+			name: "int32 value not equal",
 			entityFields: []*Field{
 				NewField(&pbentities.Value{
-					Typed: &pbentities.Value_Bigint{
-						Bigint: "10",
-					},
-				}, "15"),
+					Typed: &pbentities.Value_Int32{Int32: 10},
+				}, "20"),
 			},
 			expected: false,
 		},
