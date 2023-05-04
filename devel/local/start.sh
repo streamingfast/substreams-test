@@ -36,17 +36,25 @@ main() {
 
     configJsonnet="main.jsonnet"
     graphUrl="https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v3"
-    if [  "$version" == "prod-minimal" ]; then
+    if [ "$version" == "prod-minimal" ]; then
       configJsonnet="prod-minimal.jsonnet"
       graphUrl="https://api.thegraph.com/subgraphs/name/ianlapham/v3-minimal"
     fi
 
+    substreamsEndpoint=$2
+    if [ -z "$substreamsEndpoint" ]; then
+      substreamsEndpoint="mainnet.eth.streamingfast.io:443"
+    fi
+
+    echo "Using substreams endpoint: $substreamsEndpoint"
+
     jsonnet "$configJsonnet" > run_config.json
     $stest test substream \
-      ../../../substreams-uniswap-v3/substreams.yaml \
+      ../../../substreams-uniswap-v3/substreams.spkg \
       "$graphUrl" \
       ./run_config.json \
-      12369621:12379621 \
+      13369621:13370000 \
+      --endpoint $substreamsEndpoint \
       "$@"
 
   popd &> /dev/null
