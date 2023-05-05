@@ -12,7 +12,7 @@ func newBool(v bool, opt config.Options) *Bool {
 	return &Bool{v: v}
 }
 
-func newFBoolFromStr(v string) (Comparable, error) {
+func newFBoolFromStr(v string, _ config.Options) (Comparable, error) {
 	return &Bool{
 		v: v == "true",
 	}, nil

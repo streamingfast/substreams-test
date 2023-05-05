@@ -1,4 +1,13 @@
 {
+   "Bundle": {
+      "fields": {
+         "ethPriceUSD": {
+            "opt": {
+               "error": 0.001
+            }
+         }
+      }
+   },
    "Burn": {
       "fields": {
          "pool": {
@@ -75,6 +84,11 @@
             "association": true
          },
          "token1Price": {
+            "opt": {
+               "error": 0.001
+            }
+         },
+         "totalValueLockedETHUntracked": {
             "opt": {
                "error": 0.001
             }

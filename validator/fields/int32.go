@@ -20,12 +20,12 @@ func newInt32(v int32, opt config.Options) *Int32 {
 	}
 }
 
-func newInt32FromStr(v string) (Comparable, error) {
+func newInt32FromStr(v string, opt config.Options) (Comparable, error) {
 	value, err := strconv.ParseInt(v, 10, 32)
 	if err != nil {
 		return nil, fmt.Errorf("failed to convert %q to int32: %w", v, err)
 	}
-	return &Int32{v: int32(value)}, nil
+	return &Int32{Options: opt, v: int32(value)}, nil
 }
 
 func (f *Int32) Eql(v Comparable) bool {

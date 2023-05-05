@@ -53,7 +53,7 @@ main() {
       ../../../substreams-uniswap-v3/substreams.spkg \
       "$graphUrl" \
       ./run_config.json \
-      13369621:13370000 \
+      12369621:12375000 \
       --endpoint $substreamsEndpoint \
       "$@"
 

@@ -10,7 +10,7 @@ import (
 )
 
 type Field struct {
-	substreamsEntity string
+	SubstreamsEntity string
 	SubstreamsField  string
 	graphEntity      string
 	GraphqlField     string
@@ -30,7 +30,7 @@ func NewField(value *pbentities.Value, graphEntity string) *Field {
 	}
 }
 
-type ComparableFactory func(string) (Comparable, error)
+type ComparableFactory func(string, config.Options) (Comparable, error)
 type Comparable interface {
 	Eql(v Comparable) bool
 	String() string
@@ -42,7 +42,7 @@ func ParseValue(value *pbentities.Value, fieldOpt config.Options) (Comparable, C
 		return newInt32(newValue.Int32, fieldOpt), newInt32FromStr
 
 	case *pbentities.Value_Bigdecimal:
-		nvalue, err := newDecimalFromStr(newValue.Bigdecimal)
+		nvalue, err := newDecimalFromStr(newValue.Bigdecimal, fieldOpt)
 		if err != nil {
 			panic(err)
 		}

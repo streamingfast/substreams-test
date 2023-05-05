@@ -1,9 +1,4 @@
 local base = {
-  Pool: {
-    fields: {
-      totalValueLockedETHUntracked: { ignore: true },
-    },
-  },
   PoolDayData: {
     fields: {
       totalValueLockedUSD: { ignore: true },

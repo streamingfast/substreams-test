@@ -15,7 +15,7 @@ type Decimal struct {
 	str string
 }
 
-func newDecimalFromStr(v string) (Comparable, error) {
+func newDecimalFromStr(v string, opt config.Options) (Comparable, error) {
 	value, ok := new(big.Float).SetString(v)
 	if !ok {
 		return nil, fmt.Errorf("failed to convert %q to bigfloat", v)
@@ -24,7 +24,7 @@ func newDecimalFromStr(v string) (Comparable, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed parsing %q as a decimal: %w", v, err)
 	}
-	return &Decimal{v: value, str: v}, nil
+	return &Decimal{Options: opt, v: value, str: v}, nil
 }
 
 func (f *Decimal) Eql(v Comparable) bool {

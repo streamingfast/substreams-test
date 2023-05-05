@@ -39,6 +39,7 @@ func WithOnlyError() Option {
 		return v
 	}
 }
+
 func New(config config2.Config, graphClient *thegraph.Client, logger *zap.Logger, opts ...Option) *Validator {
 	v := &Validator{
 		graphClient: graphClient,
@@ -145,7 +146,8 @@ func (v *Validator) handleEntityChange(ctx context.Context, blockNum uint64, cha
 			continue
 		}
 
-		actualValue, err := field.ObjFactory(subgraphValueRes.String())
+		opt := v.getFieldOpt(field.SubstreamsEntity, field.SubstreamsField)
+		actualValue, err := field.ObjFactory(subgraphValueRes.String(), opt)
 		if err != nil {
 			return fmt.Errorf("failed to convert subgraph value %s: %w", subgraphValueRes.String(), err)
 		}
@@ -161,5 +163,4 @@ func (v *Validator) handleEntityChange(ctx context.Context, blockNum uint64, cha
 		}
 	}
 	return nil
-
 }

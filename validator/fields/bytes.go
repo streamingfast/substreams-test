@@ -19,7 +19,7 @@ func newBytes(v []byte, opt config.Options) *Bytes {
 	return &Bytes{v: v}
 }
 
-func newBytesFromStr(v string) (Comparable, error) {
+func newBytesFromStr(v string, _ config.Options) (Comparable, error) {
 	var data []byte
 	var err error
 	if strings.HasPrefix(v, "0x") {

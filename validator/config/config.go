@@ -6,6 +6,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"strconv"
 
 	"gopkg.in/yaml.v2"
 )
@@ -30,6 +31,45 @@ type Options struct {
 	Error     *float64 `json:"error,omitempty"`
 	Tolerance *float64 `json:"tolerance,omitempty"`
 	Round     string   `json:"round,omitempty"`
+}
+
+func NewOptions(error float64, tolerance float64, round string) Options {
+	errorPtr := new(float64)
+	*errorPtr = error
+	tolerancePtr := new(float64)
+	*tolerancePtr = tolerance
+
+	if tolerance == -1 {
+		tolerancePtr = nil
+	}
+
+	if error == -1 {
+		errorPtr = nil
+	}
+
+	return Options{
+		Error:     errorPtr,
+		Tolerance: tolerancePtr,
+		Round:     round,
+	}
+}
+
+func (o *Options) String() string {
+	errorValue := ""
+	toleranceValue := ""
+	if o.Error == nil {
+		errorValue = "nil"
+	} else {
+		errorValue = strconv.FormatFloat(*o.Error, 'E', -1, 64)
+	}
+
+	if o.Tolerance == nil {
+		toleranceValue = "nil"
+	} else {
+		toleranceValue = strconv.FormatFloat(*o.Tolerance, 'E', -1, 64)
+	}
+
+	return fmt.Sprintf("Error: %v Tolerance: %v Round: %v\n", errorValue, toleranceValue, o.Round)
 }
 
 func ReadConfigFromFile(path string) (Config, error) {

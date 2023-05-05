@@ -14,7 +14,7 @@ type FArrayFactory struct {
 	factories []ComparableFactory
 }
 
-func (f *FArrayFactory) newArrayFromStr(v string) (Comparable, error) {
+func (f *FArrayFactory) newArrayFromStr(v string, opt config.Options) (Comparable, error) {
 	if v == "[]" {
 		return &Array{}, nil
 	}
@@ -26,7 +26,7 @@ func (f *FArrayFactory) newArrayFromStr(v string) (Comparable, error) {
 	out := &Array{}
 	for i := 0; i < len(f.factories); i++ {
 		cleanValue := strings.TrimSpace(strings.TrimLeft(strings.TrimRight(chunks[i], "\""), "\""))
-		value, err := f.factories[i](cleanValue)
+		value, err := f.factories[i](cleanValue, opt)
 		if err != nil {
 			return nil, fmt.Errorf("failed to parse %s: %w", cleanValue, err)
 		}

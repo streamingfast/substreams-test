@@ -19,7 +19,7 @@ func newString(v string, opt config.Options) *String {
 	}
 }
 
-func newStringFromStr(v string) (Comparable, error) {
+func newStringFromStr(v string, _ config.Options) (Comparable, error) {
 	return &String{
 		v: v,
 	}, nil

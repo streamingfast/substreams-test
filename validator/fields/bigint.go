@@ -16,12 +16,12 @@ func newBigint(v *big.Int, opt config.Options) *Bigint {
 	return &Bigint{v: v, Options: opt}
 }
 
-func newBigintFromStr(v string) (Comparable, error) {
+func newBigintFromStr(v string, opt config.Options) (Comparable, error) {
 	value, ok := new(big.Int).SetString(v, 10)
 	if !ok {
 		return nil, fmt.Errorf("failed to convert %q to bigint", v)
 	}
-	return &Bigint{v: value}, nil
+	return &Bigint{Options: opt, v: value}, nil
 }
 
 func (f *Bigint) Eql(v Comparable) bool {

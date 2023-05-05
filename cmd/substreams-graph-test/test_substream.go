@@ -52,7 +52,7 @@ func runCmdE(cmd *cobra.Command, args []string) (err error) {
 		blockRange = args[3]
 	}
 
-	zlog.Info("running sustreams subgraph test",
+	zlog.Info("running substreams subgraph test",
 		zap.String("endpoint", endpoint),
 		zap.String("output_module_name", outputModuleName),
 		zap.String("graph_url", graphURL),

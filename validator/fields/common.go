@@ -10,6 +10,9 @@ import (
 // (substreams - subgraph)/substream * 100.0
 func validateErrorPercent(expected, actual *big.Float, errorPercent float64) (bool, float64) {
 	numerator := new(big.Float).Add(expected, new(big.Float).Mul(actual, new(big.Float).SetInt64(-1)))
+	if expected.Cmp(new(big.Float).SetFloat64(0)) == 0 {
+		return false, 0
+	}
 	quotient := new(big.Float).Quo(new(big.Float).Abs(numerator), expected)
 	percent := new(big.Float).Mul(quotient, new(big.Float).SetUint64(100))
 	v, _ := percent.Float64()

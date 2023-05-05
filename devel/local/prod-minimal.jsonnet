@@ -1,4 +1,9 @@
 local base = {
+  Bundle: {
+      fields: {
+          ethPriceUSD: {opt: {"error": 0.001}},
+      }
+  },
   Factory: {
       fields: {
           totalFeesETH: { ignore: true },
@@ -10,6 +15,7 @@ local base = {
   },
    Pool: {
       fields: {
+          totalValueLockedETHUntracked: {opt: {"error": 0.001}},
           untrackedVolumeUSD: { rename: "volumeUSDUntracked" },
           token0Price: {opt: {"error": 0.001}},
           token1Price: {opt: {"error": 0.001}},
