@@ -28,6 +28,10 @@ func (f *Bigint) Eql(v Comparable) bool {
 	expected := new(big.Float).SetInt(f.v)
 	actual := new(big.Float).SetInt(v.(*Bigint).v)
 
+	if expected.Cmp(actual) == 0 {
+		return true
+	}
+
 	if f.Tolerance != nil {
 		ok, _ := validTolerance(expected, actual, *f.Tolerance)
 		return ok
@@ -38,7 +42,7 @@ func (f *Bigint) Eql(v Comparable) bool {
 		return ok
 	}
 
-	return expected.Cmp(actual) == 0
+	return false
 }
 
 func (f *Bigint) String() string {

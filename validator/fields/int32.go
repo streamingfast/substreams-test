@@ -32,6 +32,10 @@ func (f *Int32) Eql(v Comparable) bool {
 	expected := new(big.Float).SetInt64(int64(f.v))
 	actual := new(big.Float).SetInt64(int64(v.(*Int32).v))
 
+	if expected.Cmp(actual) == 0 {
+		return true
+	}
+
 	if f.Tolerance != nil {
 		ok, _ := validTolerance(expected, actual, *f.Tolerance)
 		return ok
@@ -42,7 +46,7 @@ func (f *Int32) Eql(v Comparable) bool {
 		return ok
 	}
 
-	return expected.Cmp(actual) == 0
+	return false
 
 }
 

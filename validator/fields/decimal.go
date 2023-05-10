@@ -31,6 +31,10 @@ func (f *Decimal) Eql(v Comparable) bool {
 	expected := f.v
 	actual := v.(*Decimal).v
 
+	if expected.Cmp(actual) == 0 {
+		return true
+	}
+
 	if f.Tolerance != nil {
 		ok, _ := validTolerance(expected, actual, *f.Tolerance)
 		return ok
@@ -52,7 +56,7 @@ func (f *Decimal) Eql(v Comparable) bool {
 		return ok
 	}
 
-	return expected.Cmp(actual) == 0
+	return false
 }
 
 func (f *Decimal) String() string {

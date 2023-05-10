@@ -72,23 +72,37 @@
          "feeGrowthGlobal1X128": {
             "ignore": true
          },
+         "liquidity": {
+            "ignore": true
+         },
          "token0": {
             "association": true
          },
          "token0Price": {
-            "opt": {
-               "error": 0.001
-            }
+            "ignore": true
          },
          "token1": {
             "association": true
          },
          "token1Price": {
+            "ignore": true
+         },
+         "totalValueLockedETH": {
             "opt": {
                "error": 0.001
             }
          },
          "totalValueLockedETHUntracked": {
+            "opt": {
+               "error": 0.001
+            }
+         },
+         "totalValueLockedToken0": {
+            "opt": {
+               "error": 0.001
+            }
+         },
+         "totalValueLockedToken1": {
             "opt": {
                "error": 0.001
             }
@@ -109,9 +123,7 @@
    "PoolDayData": {
       "fields": {
          "close": {
-            "opt": {
-               "error": 0.001
-            }
+            "ignore": true
          },
          "feeGrowthGlobal0X128": {
             "ignore": true
@@ -120,66 +132,61 @@
             "ignore": true
          },
          "high": {
-            "opt": {
-               "error": 0.001
-            }
+            "ignore": true
+         },
+         "liquidity": {
+            "ignore": true
          },
          "low": {
-            "opt": {
-               "error": 0.001
-            }
+            "ignore": true
          },
          "open": {
-            "opt": {
-               "error": 0.001
-            }
+            "ignore": true
          },
          "pool": {
             "association": true
          },
          "token0Price": {
-            "opt": {
-               "error": 0.001
-            }
+            "ignore": true
          },
          "token1Price": {
-            "opt": {
-               "error": 0.001
-            }
+            "ignore": true
          }
       }
    },
    "PoolHourData": {
       "fields": {
          "close": {
-            "opt": {
-               "error": 0.001
-            }
+            "ignore": true
+         },
+         "feeGrowthGlobal0X128": {
+            "ignore": true
+         },
+         "feeGrowthGlobal1X128": {
+            "ignore": true
          },
          "high": {
-            "opt": {
-               "error": 0.001
-            }
+            "ignore": true
+         },
+         "liquidity": {
+            "ignore": true
          },
          "low": {
-            "opt": {
-               "error": 0.001
-            }
+            "ignore": true
          },
          "open": {
-            "opt": {
-               "error": 0.001
-            }
+            "ignore": true
          },
          "pool": {
             "association": true
          },
          "token0Price": {
-            "opt": {
-               "error": 0.001
-            }
+            "ignore": true
          },
          "token1Price": {
+            "ignore": true
+         },
+         "totalValueLockedUSD": {
             "opt": {
                "error": 0.001
             }
@@ -263,14 +270,13 @@
                "error": 0.001
             }
          },
-         "feeGrowthGlobal0X128": {
-            "ignore": true
-         },
-         "feeGrowthGlobal1X128": {
-            "ignore": true
-         },
          "totalSupply": {
             "ignore": true
+         },
+         "totalValueLocked": {
+            "opt": {
+               "error": 0.001
+            }
          },
          "totalValueLockedUSDUntracked": {
             "ignore": true
@@ -286,10 +292,22 @@
    },
    "TokenDayData": {
       "fields": {
+         "close": {
+            "ignore": true
+         },
          "feesUSD": {
             "opt": {
                "error": 0.001
             }
+         },
+         "high": {
+            "ignore": true
+         },
+         "low": {
+            "ignore": true
+         },
+         "open": {
+            "ignore": true
          },
          "priceUSD": {
             "opt": {
@@ -323,10 +341,22 @@
    },
    "TokenHourData": {
       "fields": {
+         "close": {
+            "ignore": true
+         },
          "feesUSD": {
             "opt": {
                "error": 0.001
             }
+         },
+         "high": {
+            "ignore": true
+         },
+         "low": {
+            "ignore": true
+         },
+         "open": {
+            "ignore": true
          },
          "priceUSD": {
             "opt": {
@@ -360,6 +390,20 @@
             "opt": {
                "error": 0.001
             }
+         }
+      }
+   },
+   "Transaction": {
+      "fields": {
+         "gasUsed": {
+            "ignore": true
+         }
+      }
+   },
+   "UniswapDayData": {
+      "fields": {
+         "txCount": {
+            "ignore": true
          }
       }
    }
