@@ -70,7 +70,7 @@ func runCmdE(cmd *cobra.Command, args []string) (err error) {
 
 	s, err := sink.NewFromViper(
 		cmd,
-		"proto:substreams.entity.v1.EntityChanges",
+		"proto:sf.substreams.entity.v1.EntityChanges",
 		endpoint,
 		manifestPath,
 		outputModuleName,
