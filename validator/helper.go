@@ -50,8 +50,11 @@ func (v *Validator) isGraphQLArrayField(entityName string, fieldName string) boo
 func (v *Validator) getFieldOpt(entityName string, fieldName string) config.Options {
 	if entity, found := v.config[entityName]; found {
 		if field, ok := entity.Fields[fieldName]; ok {
+			if v.defaultOptions.Error != nil && field.Opt.Error == nil {
+				field.Opt.Error = v.defaultOptions.Error
+			}
 			return field.Opt
 		}
 	}
-	return config.Options{}
+	return v.defaultOptions
 }

@@ -27,6 +27,7 @@ var testSubstreamCmd = &cobra.Command{
 
 func init() {
 	testCmd.AddCommand(testSubstreamCmd)
+	testSubstreamCmd.Flags().Float64("default-error-tolerance", 0, "Default tolerance of error when comparing, in %")
 	testSubstreamCmd.Flags().String("output-module", "graph_out", "Output module under test, it needs to be of output type proto:substreams.entity.v1.EntityChanges")
 	testSubstreamCmd.Flags().StringP("endpoint", "e", "mainnet.eth.streamingfast.io:443", "Substreams endpoint")
 	testSubstreamCmd.Flags().String("graphql-cache-store", "./localdata/.cache", "TheGraph GraphQL response caches store")
@@ -37,6 +38,7 @@ func init() {
 func runCmdE(cmd *cobra.Command, args []string) (err error) {
 	ctx := cmd.Context()
 
+	defaultErrorTolerance := sflags.MustGetFloat64(cmd, "default-error-tolerance")
 	endpoint := sflags.MustGetString(cmd, "endpoint")
 	outputModuleName := sflags.MustGetString(cmd, "output-module")
 	graphqlCacheStore := sflags.MustGetString(cmd, "graphql-cache-store")
@@ -53,6 +55,7 @@ func runCmdE(cmd *cobra.Command, args []string) (err error) {
 	}
 
 	zlog.Info("running substreams subgraph test",
+		zap.Float64("default_error_tolerance", defaultErrorTolerance),
 		zap.String("endpoint", endpoint),
 		zap.String("output_module_name", outputModuleName),
 		zap.String("graph_url", graphURL),
@@ -98,6 +101,10 @@ func runCmdE(cmd *cobra.Command, args []string) (err error) {
 	var valOpts []validator.Option
 	if onlyError {
 		valOpts = append(valOpts, validator.WithOnlyError())
+	}
+
+	if defaultErrorTolerance != 0 {
+		valOpts = append(valOpts, validator.WithDefaultErrorTolerance(defaultErrorTolerance))
 	}
 	testRunner := validator.New(config, graphClient, zlog, valOpts...)
 	t0 := time.Now()

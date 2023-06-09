@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/streamingfast/substreams-test/validator/config"
 	config2 "github.com/streamingfast/substreams-test/validator/config"
 	"github.com/streamingfast/substreams-test/validator/fields"
 
@@ -21,9 +22,10 @@ import (
 type Validator struct {
 	graphClient *thegraph.Client
 
-	stats         *Stats
-	config        config2.Config
-	showOnlyError bool
+	stats          *Stats
+	config         config2.Config
+	showOnlyError  bool
+	defaultOptions config.Options
 
 	logger *zap.Logger
 
@@ -40,12 +42,20 @@ func WithOnlyError() Option {
 	}
 }
 
-func New(config config2.Config, graphClient *thegraph.Client, logger *zap.Logger, opts ...Option) *Validator {
+func WithDefaultErrorTolerance(tol float64) Option {
+	return func(v *Validator) *Validator {
+		v.defaultOptions.Error = &tol
+		return v
+	}
+}
+
+func New(conf config2.Config, graphClient *thegraph.Client, logger *zap.Logger, opts ...Option) *Validator {
 	v := &Validator{
-		graphClient: graphClient,
-		stats:       newStats(),
-		config:      config,
-		logger:      logger,
+		graphClient:    graphClient,
+		stats:          newStats(),
+		config:         conf,
+		logger:         logger,
+		defaultOptions: config.Options{},
 	}
 
 	for _, opt := range opts {
