@@ -16,12 +16,12 @@ type Stats struct {
 }
 
 func (s *Stats) Print() string {
-	entities := []string{}
-	for ent, _ := range s.entities {
+	var entities []string
+	for ent := range s.entities {
 		entities = append(entities, ent)
 	}
 	sort.Strings(entities)
-	rows := [][]string{}
+	var rows [][]string
 	rows = append(rows, []string{"Entity", "Attr", "Total", "Success", "Failed"})
 
 	for _, ent := range entities {
@@ -33,7 +33,7 @@ func (s *Stats) Print() string {
 			ratioStr(s.entities[ent].failedCount, s.entities[ent].totalCount),
 		})
 
-		fields := []string{}
+		var fields []string
 		for fieldName, _ := range s.entities[ent].fields {
 			fields = append(fields, fieldName)
 		}
@@ -51,7 +51,7 @@ func (s *Stats) Print() string {
 	}
 	rows = append(rows, []string{"", "", fmt.Sprintf("%d", s.totalCount), ratioStr(s.successCount, s.totalCount), ratioStr(s.failedCount, s.totalCount)})
 
-	out := []string{}
+	var out []string
 	for _, r := range rows {
 		out = append(out, strings.Join(r, " | "))
 	}
@@ -96,6 +96,9 @@ func (s *Stats) Fail(entityName, fieldName string) {
 	s.failedCount++
 	s.totalCount++
 }
+
+//todo: add a _Can't compare_ column as some fields cannot be compared
+// - when we have a value for the substreams output but nothing coming out of the graphql call
 
 func newStats() *Stats {
 	return &Stats{

@@ -27,11 +27,14 @@ var testSubstreamCmd = &cobra.Command{
 
 func init() {
 	testCmd.AddCommand(testSubstreamCmd)
+
 	testSubstreamCmd.Flags().Float64("default-error-tolerance", 0, "Default tolerance of error when comparing, in %")
 	testSubstreamCmd.Flags().String("output-module", "graph_out", "Output module under test, it needs to be of output type proto:substreams.entity.v1.EntityChanges")
 	testSubstreamCmd.Flags().StringP("endpoint", "e", "mainnet.eth.streamingfast.io:443", "Substreams endpoint")
 	testSubstreamCmd.Flags().String("graphql-cache-store", "./localdata/.cache", "TheGraph GraphQL response caches store")
-	testSubstreamCmd.Flags().Bool("only-error", false, "Only shows error")
+	testSubstreamCmd.Flags().Bool("only-errors", false, "Only shows error")
+	testSubstreamCmd.Flags().Bool("only-results", false, "Only shows result")
+
 	sink.AddFlagsToSet(testSubstreamCmd.Flags())
 }
 
@@ -43,7 +46,8 @@ func runCmdE(cmd *cobra.Command, args []string) (err error) {
 	outputModuleName := sflags.MustGetString(cmd, "output-module")
 	graphqlCacheStore := sflags.MustGetString(cmd, "graphql-cache-store")
 
-	onlyError := sflags.MustGetBool(cmd, "only-error")
+	onlyError := sflags.MustGetBool(cmd, "only-errors")
+	onlyResult := sflags.MustGetBool(cmd, "only-results")
 
 	manifestPath := args[0]
 	graphURL := args[1]
@@ -63,10 +67,11 @@ func runCmdE(cmd *cobra.Command, args []string) (err error) {
 		zap.String("block_range", blockRange),
 		zap.String("graphql_cache_store", graphqlCacheStore),
 		zap.String("config_path", configPath),
-		zap.Bool("only_error", onlyError),
+		zap.Bool("only_errors", onlyError),
+		zap.Bool("only_results", onlyResult),
 	)
 
-	config, err := config.ReadConfigFromFile(configPath)
+	conf, err := config.ReadConfigFromFile(configPath)
 	if err != nil {
 		return fmt.Errorf("failed to read confile file %q: %w", configPath, err)
 	}
@@ -103,10 +108,15 @@ func runCmdE(cmd *cobra.Command, args []string) (err error) {
 		valOpts = append(valOpts, validator.WithOnlyError())
 	}
 
+	if onlyResult {
+		valOpts = append(valOpts, validator.WithOnlyResult())
+	}
+
 	if defaultErrorTolerance != 0 {
 		valOpts = append(valOpts, validator.WithDefaultErrorTolerance(defaultErrorTolerance))
 	}
-	testRunner := validator.New(config, graphClient, zlog, valOpts...)
+
+	testRunner := validator.New(conf, graphClient, zlog, valOpts...)
 	t0 := time.Now()
 	s.Run(ctx, nil, testRunner)
 

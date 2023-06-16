@@ -25,6 +25,7 @@ type Validator struct {
 	stats          *Stats
 	config         config2.Config
 	showOnlyError  bool
+	showOnlyResult bool
 	defaultOptions config.Options
 
 	logger *zap.Logger
@@ -34,6 +35,13 @@ type Validator struct {
 }
 
 type Option func(v *Validator) *Validator
+
+func WithOnlyResult() Option {
+	return func(v *Validator) *Validator {
+		v.showOnlyResult = true
+		return v
+	}
+}
 
 func WithOnlyError() Option {
 	return func(v *Validator) *Validator {
@@ -165,11 +173,15 @@ func (v *Validator) handleEntityChange(ctx context.Context, blockNum uint64, cha
 		if field.Obj.Eql(actualValue) {
 			v.stats.Success(change.Entity, field.SubstreamsField)
 			if !v.showOnlyError {
-				fmt.Printf("✅ %-120s ✅ sub: %s <-> grql: %s\n", prefix, field.Obj.String(), subgraphValueRes.String())
+				if !v.showOnlyResult {
+					fmt.Printf("✅ %-120s ✅ sub: %s <-> grql: %s\n", prefix, field.Obj.String(), subgraphValueRes.String())
+				}
 			}
 		} else {
 			v.stats.Fail(change.Entity, field.SubstreamsField)
-			fmt.Printf("❌ %-120s ❌ sub: %s <-> grql: %s\n", prefix, field.Obj.String(), subgraphValueRes.String())
+			if !v.showOnlyResult {
+				fmt.Printf("❌ %-120s ❌ sub: %s <-> grql: %s\n", prefix, field.Obj.String(), subgraphValueRes.String())
+			}
 		}
 	}
 	return nil

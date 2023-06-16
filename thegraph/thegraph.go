@@ -23,6 +23,7 @@ type Client struct {
 	cacheMissCount uint64
 	zlogger        *zap.Logger
 	count          int
+	retries        int
 }
 
 type Option func(*Client) *Client
@@ -51,6 +52,7 @@ func New(graphURL string, opts ...Option) *Client {
 		cache:   &noOpCache{},
 		zlogger: zap.NewNop(),
 		count:   0,
+		retries: 5,
 	}
 
 	for _, opt := range opts {
@@ -110,6 +112,7 @@ func (g *Client) fetch(ctx context.Context, payload map[string]interface{}) ([]b
 		return nil, fmt.Errorf("unable to create request: %w", err)
 	}
 	request.Header.Set("Content-Type", "application/json")
+
 	resp, err := g.Do(request)
 	if err != nil {
 		return nil, fmt.Errorf("unable to perform request: %w", err)
@@ -130,13 +133,48 @@ func (g *Client) fetch(ctx context.Context, payload map[string]interface{}) ([]b
 
 	// TODO: this is not he best way should move to jsonb and plunk out the value
 	errResp := ErrorResponse{}
-	json.Unmarshal(responseBytes, &errResp)
-	if len(errResp.Errors) > 0 {
-		return nil, fmt.Errorf("received graphq error: %s", errResp.Errors[0].Message)
+	err = json.Unmarshal(responseBytes, &errResp)
+	if err != nil {
+		return nil, fmt.Errorf("unmarshalling: %w", err)
+	}
+
+	for i := 0; i < g.retries; i++ {
+		if len(errResp.Errors) > 0 {
+			g.zlogger.Info(fmt.Sprintf("retry number: %d waiting 3s to not overload the graphAPI", i))
+			time.Sleep(3 * time.Second)
+
+			responseBytes, err = g.retryCall(request)
+			if err != nil {
+				return nil, fmt.Errorf("retry call: %w", err)
+			}
+
+			errResp = ErrorResponse{}
+			err = json.Unmarshal(responseBytes, &errResp)
+			if err != nil {
+				return nil, fmt.Errorf("unmarshalling: %w", err)
+			}
+		}
 	}
 
 	return responseBytes, nil
+}
 
+func (g *Client) retryCall(request *http.Request) ([]byte, error) {
+	resp, err := g.Do(request)
+	if err != nil {
+		return nil, fmt.Errorf("unable to perform request: %w", err)
+	}
+	defer resp.Body.Close()
+
+	responseBytes, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read body: %w", err)
+	}
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("querying graphql: got status %d, body %s", resp.StatusCode, string(responseBytes))
+	}
+
+	return responseBytes, nil
 }
 
 type ErrorResponse struct {
