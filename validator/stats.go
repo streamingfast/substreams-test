@@ -9,10 +9,17 @@ import (
 )
 
 type Stats struct {
-	entities     map[string]*entityStat
-	successCount uint64
-	failedCount  uint64
-	totalCount   uint64
+	entities          map[string]*entityStat
+	successCount      uint64
+	failedCount       uint64
+	incomparableCount uint64
+	totalCount        uint64
+}
+
+func newStats() *Stats {
+	return &Stats{
+		entities: map[string]*entityStat{},
+	}
 }
 
 func (s *Stats) Print() string {
@@ -22,7 +29,7 @@ func (s *Stats) Print() string {
 	}
 	sort.Strings(entities)
 	var rows [][]string
-	rows = append(rows, []string{"Entity", "Attr", "Total", "Success", "Failed"})
+	rows = append(rows, []string{"Entity", "Attr", "Total", "Success", "Failed", "Incomparable"})
 
 	for _, ent := range entities {
 		rows = append(rows, []string{
@@ -31,6 +38,7 @@ func (s *Stats) Print() string {
 			fmt.Sprintf("%d", s.entities[ent].totalCount),
 			ratioStr(s.entities[ent].successCount, s.entities[ent].totalCount),
 			ratioStr(s.entities[ent].failedCount, s.entities[ent].totalCount),
+			ratioStr(s.entities[ent].incomparableCount, s.entities[ent].totalCount),
 		})
 
 		var fields []string
@@ -46,10 +54,19 @@ func (s *Stats) Print() string {
 				fmt.Sprintf("%d", fieldStats.totalCount),
 				ratioStr(fieldStats.successCount, fieldStats.totalCount),
 				ratioStr(fieldStats.failedCount, fieldStats.totalCount),
+				ratioStr(fieldStats.incomparableCount, fieldStats.totalCount),
 			})
 		}
 	}
-	rows = append(rows, []string{"", "", fmt.Sprintf("%d", s.totalCount), ratioStr(s.successCount, s.totalCount), ratioStr(s.failedCount, s.totalCount)})
+
+	rows = append(rows, []string{
+		"",
+		"",
+		fmt.Sprintf("%d", s.totalCount),
+		ratioStr(s.successCount, s.totalCount),
+		ratioStr(s.failedCount, s.totalCount),
+		ratioStr(s.incomparableCount, s.totalCount),
+	})
 
 	var out []string
 	for _, r := range rows {
@@ -97,21 +114,33 @@ func (s *Stats) Fail(entityName, fieldName string) {
 	s.totalCount++
 }
 
-//todo: add a _Can't compare_ column as some fields cannot be compared
-// - when we have a value for the substreams output but nothing coming out of the graphql call
-
-func newStats() *Stats {
-	return &Stats{
-		entities: map[string]*entityStat{},
+func (s *Stats) Incomparable(entityName string, fieldName string) {
+	if _, found := s.entities[entityName]; !found {
+		s.entities[entityName] = &entityStat{
+			entity: entityName,
+			fields: map[string]*fieldStat{},
+		}
 	}
+
+	if _, found := s.entities[entityName].fields[fieldName]; !found {
+		s.entities[entityName].fields[fieldName] = &fieldStat{
+			fieldName: fieldName,
+		}
+	}
+
+	s.entities[entityName].fields[fieldName].incomparable()
+	s.entities[entityName].incomparable()
+	s.incomparableCount++
+	s.totalCount++
 }
 
 type entityStat struct {
-	entity       string
-	fields       map[string]*fieldStat
-	totalCount   uint64
-	successCount uint64
-	failedCount  uint64
+	entity            string
+	fields            map[string]*fieldStat
+	totalCount        uint64
+	successCount      uint64
+	failedCount       uint64
+	incomparableCount uint64
 }
 
 func (f *entityStat) success() {
@@ -124,11 +153,17 @@ func (f *entityStat) failed() {
 	f.failedCount++
 }
 
+func (f *entityStat) incomparable() {
+	f.totalCount++
+	f.incomparableCount++
+}
+
 type fieldStat struct {
-	fieldName    string
-	totalCount   uint64
-	successCount uint64
-	failedCount  uint64
+	fieldName         string
+	totalCount        uint64
+	successCount      uint64
+	failedCount       uint64
+	incomparableCount uint64
 }
 
 func (f *fieldStat) success() {
@@ -139,6 +174,11 @@ func (f *fieldStat) success() {
 func (f *fieldStat) failed() {
 	f.totalCount++
 	f.failedCount++
+}
+
+func (f *fieldStat) incomparable() {
+	f.totalCount++
+	f.incomparableCount++
 }
 
 func ratioStr(num, dem uint64) string {

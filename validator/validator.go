@@ -160,7 +160,10 @@ func (v *Validator) handleEntityChange(ctx context.Context, blockNum uint64, cha
 
 		subgraphValueRes := gjson.GetBytes(resp, field.GraphqlJSONPath)
 		if subgraphValueRes.Type == gjson.Null {
-			fmt.Printf("❌ %s: sub: %s <-> grql: NULL\n", prefix, field.Obj.String())
+			v.stats.Incomparable(change.Entity, field.SubstreamsField)
+			if !v.showOnlyResult {
+				fmt.Printf("⚠️ %s: sub: %s <-> grql: NULL\n", prefix, field.Obj.String())
+			}
 			continue
 		}
 
